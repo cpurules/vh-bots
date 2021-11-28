@@ -2,7 +2,6 @@ import discord
 import json
 
 class BotConfig:
-    TOKEN = ''
     MAX_WINNERS_PER_GIVEAWAY_GROUP = 0
     MAX_WINNERS_PER_EVENT_GROUP = 0
     MAX_WINNERS_PER_POST = 20
@@ -26,10 +25,6 @@ class BotConfig:
         with open(file) as f:
             config_dict = json.load(f)
         
-        self.TOKEN = config_dict['TOKEN']
-        if self.TOKEN == "":
-            raise ValueError("You must specify the TOKEN in " + file)
-
         self.MAX_WINNERS_PER_GIVEAWAY_GROUP = int(config_dict['MAX_WINNERS_PER_GIVEAWAY_GROUP'])
         if self.MAX_WINNERS_PER_GIVEAWAY_GROUP <= 0:
             raise ValueError("MAX_WINNERS_PER_GIVEAWAY_GROUP must be a positive integer")

@@ -1,7 +1,10 @@
 FROM vh-bots/python
 
+ARG BOT_TOKEN
+ENV BOT_TOKEN=${BOT_TOKEN}
+
 WORKDIR /code
 
 COPY ./src .
 
-CMD [ "./wait-for-it.sh", "vh-db:8529", "--", "python", "giveaway_bot.py" ]
+CMD ["giveaway_bot.py"]

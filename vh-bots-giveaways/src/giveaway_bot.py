@@ -1,10 +1,17 @@
 import asyncio
 import discord
 import math
+import os
 import random
+import sys
 
 from config import BotConfig
 from discord.ext import commands
+
+if not "BOT_TOKEN" in os.environ or os.environ["BOT_TOKEN"] == "":
+    raise ValueError("BOT_TOKEN environment variable not set!")
+
+bot_token = os.environ["BOT_TOKEN"]
 
 CONFIG = BotConfig()
 intents = discord.Intents.default()
@@ -260,4 +267,4 @@ async def on_command_error(ctx, error):
     
     raise err
 
-bot.run(CONFIG.TOKEN)
+bot.run(bot_token)
