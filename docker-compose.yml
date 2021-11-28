@@ -18,6 +18,7 @@ services:
       context: ./vh-bots-giveaways/
       args:
         - BOT_TOKEN=
+        - CONFIG_FILE=config_test.json
     depends_on:
       - "vh-db"
     image: vh-bots/giveaways

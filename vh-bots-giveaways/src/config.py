@@ -1,5 +1,6 @@
 import discord
 import json
+import os
 
 class BotConfig:
     MAX_WINNERS_PER_GIVEAWAY_GROUP = 0
@@ -19,9 +20,12 @@ class BotConfig:
     COMMAND_ENABLED_ROLES = []
     LOGGING_CHANNEL = 0
 
-    def __init__(self, bot=None, file='config.json'):
+    def __init__(self, bot=None):
         self.bot = bot
+        if not "CONFIG_FILE" in os.environ or os.environ["CONFIG_FILE"] == "":
+            raise ValueError("Missing CONFIG_FILE environment variable!")
 
+        file = os.environ["CONFIG_FILE"]
         with open(file) as f:
             config_dict = json.load(f)
         
