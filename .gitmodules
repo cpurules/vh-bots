@@ -1,6 +1,0 @@
-[submodule "vh-bots-db"]
-	path = vh-bots-db
-	url = git@github.com:cpurules/vh-bots-db
-[submodule "vh-bots-giveaways"]
-	path = vh-bots-giveaways
-	url = git@github.com:cpurules/vh-bots-giveaways
