@@ -16,6 +16,8 @@ services:
   vh-giveaway-bot:
     build:
       context: ./vh-bots-giveaways/
+      args:
+        - BOT_TOKEN=
     depends_on:
       - "vh-db"
     image: vh-bots/giveaways
