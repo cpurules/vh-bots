@@ -11,7 +11,13 @@ services:
       - vh-db:/var/lib/arangodb3
     environment:
       - ARANGO_RANDOM_ROOT_PASSWORD=1
-    container_name: 'vh_db'
+    container_name: 'vh-db'
+
+  vh-giveaway-bot:
+    build:
+      context: ./vh-bots-giveaways/
+    image: vh-bots/giveaways
+    container_name: 'vh-giveaway-bot'
 
 volumes:
   vh-db:
