@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  vh-db:
+    build:
+      context: ./db/
+    ports:
+      - 8529:8529
+    volumes:
+      - vh-db:/var/lib/arangodb3
+    environment:
+      - ARANGO_ROOT_PASSWORD=testing123
+    container_name: 'vh_db'
+
+volumes:
+  vh-db:
