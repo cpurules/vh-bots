@@ -16,6 +16,8 @@ services:
   vh-giveaway-bot:
     build:
       context: ./vh-bots-giveaways/
+    depends_on:
+      - "vh-db"
     image: vh-bots/giveaways
     container_name: 'vh-giveaway-bot'
 
