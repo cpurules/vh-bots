@@ -9,7 +9,7 @@ services:
     volumes:
       - vh-db:/var/lib/arangodb3
     environment:
-      - ARANGO_ROOT_PASSWORD=testing123
+      - ARANGO_RANDOM_ROOT_PASSWORD=1
     container_name: 'vh_db'
 
 volumes:
