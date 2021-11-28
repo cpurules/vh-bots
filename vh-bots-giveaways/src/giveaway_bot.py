@@ -8,10 +8,9 @@ import sys
 from config import BotConfig
 from discord.ext import commands
 
-if not "BOT_TOKEN" in os.environ or os.environ["BOT_TOKEN"] == "":
+bot_token = os.getenv("BOT_TOKEN")
+if bot_token is None:
     raise ValueError("BOT_TOKEN environment variable not set!")
-
-bot_token = os.environ["BOT_TOKEN"]
 
 CONFIG = BotConfig()
 intents = discord.Intents.default()

@@ -22,10 +22,11 @@ class BotConfig:
 
     def __init__(self, bot=None):
         self.bot = bot
-        if not "CONFIG_FILE" in os.environ or os.environ["CONFIG_FILE"] == "":
+
+	file = os.getenv("CONFIG_FILE")
+        if file is None:
             raise ValueError("Missing CONFIG_FILE environment variable!")
 
-        file = os.environ["CONFIG_FILE"]
         with open(file) as f:
             config_dict = json.load(f)
         
