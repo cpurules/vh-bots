@@ -226,7 +226,8 @@ class DrawingCog(commands.Cog):
         
         print('Drawing for {0} has ended'.format(drawing.prize))
         await msg.edit(embed=drawing.generate_embed())
-
+        drawing.end()
+        
         winners = await self.select_winners(drawing)
 
         if len(winners) == 0:

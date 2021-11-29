@@ -83,6 +83,12 @@ class Drawing:
         drawing['ended_flag'] = self.ended_flag
         drawing.save()
     
+    def end(self):
+        drawing = self.get_drawing_db_object()
+        drawing['ended_flag'] = True
+        drawing.save()
+        self.ended_flag = True
+    
     def get_drawing_db_object(self):
         if self.message_id is None:
             return None
