@@ -24,5 +24,16 @@ services:
     image: vh-bots/giveaways
     container_name: 'vh-giveaway-bot'
 
+  vh-queue-bot:
+    build:
+      context: ./vh-bots-queues/
+      args:
+        - QUEUE_BOT_TOKEN=
+        - QUEUE_CONFIG_FILE=config.json
+    depends_on:
+      - "vh-db"
+    image: vh-bots/queues
+    container_name: 'vh-queue-bot'
+
 volumes:
   vh-db:
