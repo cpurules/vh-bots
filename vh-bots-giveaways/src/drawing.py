@@ -41,8 +41,20 @@ class Drawing:
         db = Database()
 
         drawings = []
-        for drawing in db.giveaways.fetchAll():
+        for drawing in db.drawings.fetchAll():
             drawings.append(Drawing.create_drawing_from_db_obj(drawing))
+        
+        return drawings
+    
+    @staticmethod
+    def get_all_active_drawings():
+        db = Database()
+
+        drawings = []
+        aql_query = 'FOR d IN drawings FILTER d.ended_flag == false'
+        aql_result = db.db.AQLQuery(aql_query, rawResults=True)
+        for result in aql_result:
+            drawings.append(Drawing.create_drawing_from_db_obj(result))
         
         return drawings
     
@@ -52,10 +64,10 @@ class Drawing:
         
         db = Database()
 
-        if str(self.message_id) in db.giveaways:
+        if str(self.message_id) in db.drawings:
             raise ValueError("This drawing already exists in the database")
         
-        drawing = db.giveaways.createDocument()
+        drawing = db.drawings.createDocument()
         drawing._key = str(self.message_id)
         drawing['winners'] = self.winners
         drawing['start_time'] = self.start_time
@@ -73,7 +85,7 @@ class Drawing:
 
         db = Database()
 
-        drawing = db.giveaways.fetchDocument(str(self.message_id))
+        drawing = db.drawings.fetchDocument(str(self.message_id))
         return drawing
     
     def get_end_time(self):
