@@ -238,9 +238,8 @@ class DrawingCog(commands.Cog):
             await msg_channel.send(content='Oops!  Nobody won the **{0}** drawing :('.format(drawing.prize))
             return
         
-        return
-        #await self.announce_winners(drawing, winners)
-        #await self.process_winners(drawing, winners)
+        await self.announce_winners(drawing, winners)
+        await self.process_winners(drawing, winners)
     
     async def select_winners(self, drawing):
         msg_channel = CONFIG.get_guild_text_channel(drawing.channel_id)
@@ -264,8 +263,9 @@ class DrawingCog(commands.Cog):
         return winners
     
     async def announce_winners(self, drawing, winners):
-        ctx = await self.bot.get_context(drawing.msg)
-        guild = ctx.guild
+        msg_channel = CONFIG.get_guild_text_channel(drawing.channel_id)
+        
+        guild = CONFIG.GET_GUILD()
 
         all_winner_mentions = []
         current_winner = 0
@@ -277,16 +277,15 @@ class DrawingCog(commands.Cog):
             current_winner += 1
         
         for winner_mentions in all_winner_mentions:
-            await ctx.send(content='Congratulations to our {0} winners! {1}'.format(drawing.prize, " ".join(winner_mentions)))
+            await msg_channel.send(content='Congratulations to our {0} winners! {1}'.format(drawing.prize, " ".join(winner_mentions)))
         
         if drawing.drawing_type == DrawingType.GIVEAWAY:
             pitfall_emoji = await guild.fetch_emoji(CONFIG.PITFALL_EMOJI)
             events_team_role = guild.get_role(CONFIG.EVENTS_TEAM_ROLE)
-            await ctx.send(content=generate_giveaway_instructions(pitfall_emoji, events_team_role))
+            await msg_channel.send(content=generate_giveaway_instructions(pitfall_emoji, events_team_role))
 
     async def process_winners(self, drawing, winners):
-        ctx = await self.bot.get_context(drawing.msg)
-        guild = ctx.guild
+        guild = CONFIG.GET_GUILD()
         
         if drawing.drawing_type == DrawingType.GIVEAWAY:
             max_per_group = CONFIG.MAX_WINNERS_PER_GIVEAWAY_GROUP
