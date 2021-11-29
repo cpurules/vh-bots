@@ -11,13 +11,13 @@ from drawing import Drawing, DrawingType
 
 CONFIG = BotConfig()
 DB = Database()
-ACTIVE_DRAWINGS = []
 
 class DrawingCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.special_team_role_id = None
         self.separate_cit_channel = CONFIG.SEPARATE_CIT_CHANNEL
+        self.active_drawings = []
 
     @staticmethod
     def __parse_type_arg(drawing_type: str):
@@ -52,10 +52,11 @@ class DrawingCog(commands.Cog):
     @commands.Cog.listener()
     async def on_ready(self):
         print('ACTIVE_DRAWINGS == 0 check')
-        if len(ACTIVE_DRAWINGS) == 0: # only run this once
+        if len(self.active_drawings) == 0: # only run this once
             print('ACTIVE_DRAWINGS == 0')
-            ACTIVE_DRAWINGS = Drawing.get_all_active_drawings()
-            for drawing in ACTIVE_DRAWINGS:
+            self.active_drawings = Drawing.get_all_active_drawings()
+            for drawing in self.active_drawings:
+                print('drawing {0} - {1}'.format(drawing.message_id, drawing.prize))
                 await asyncio.ensure_future(self.run_drawing(drawing))
     
     @commands.command(name='getcitchannel')
@@ -155,7 +156,7 @@ class DrawingCog(commands.Cog):
         drawing_msg = await ctx.send(embed=drawing.generate_embed())
         drawing.set_ids(drawing_msg)
         drawing.create_in_db()
-        ACTIVE_DRAWINGS.append(drawing)
+        self.active_drawings.append(drawing)
 
         await drawing.msg.add_reaction('\N{PARTY POPPER}')
         
@@ -206,7 +207,7 @@ class DrawingCog(commands.Cog):
         drawing_msg = await ctx.send(embed=drawing.generate_embed())
         drawing.set_ids(drawing_msg)
         drawing.create_in_db()
-        ACTIVE_DRAWINGS.append(drawing)
+        self.active_drawings.append(drawing)
 
         await drawing_msg.add_reaction('\N{PARTY POPPER}')
 
