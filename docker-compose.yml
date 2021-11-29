@@ -35,5 +35,16 @@ services:
     image: vh-bots/queues
     container_name: 'vh-queue-bot'
 
+  vh-community-bot:
+    build:
+      context: ./vh-bots-community/
+      args:
+        - COMMUNITY_BOT_TOKEN=
+        - COMMUNITY_CONFIG_FILE=botconfig.json
+    depends_on:
+      - "vh-db"
+    image: vh-bots/community
+    container_name: 'vh-community-bot'
+
 volumes:
   vh-db:
