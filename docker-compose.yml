@@ -46,5 +46,16 @@ services:
     image: vh-bots/community
     container_name: 'vh-community-bot'
 
+  vh-villager-bot:
+    build:
+      context: ./vh-bots-villagers/
+      args:
+        - VILLAGER_BOT_TOKEN=
+        - VILLAGER_CONFIG_FILE=config.json
+    depends_on:
+      - "vh-db"
+    image: vh-bots/villagers
+    container_name: 'vh-villager-bot'
+
 volumes:
   vh-db:
