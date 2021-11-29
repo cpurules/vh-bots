@@ -56,7 +56,7 @@ class DrawingCog(commands.Cog):
             print('ACTIVE_DRAWINGS == 0')
             active_drawings = Drawing.get_all_active_drawings()
             for drawing in active_drawings:
-                self.active_drawing_tasks.append(asyncio.ensure_future(self.run_drawing(drawing)))
+                self.active_drawing_tasks.append({drawing.message_id: asyncio.ensure_future(self.run_drawing(drawing))})
     
     @commands.command(name='getcitchannel')
     @commands.has_any_role(*CONFIG.COMMAND_ENABLED_ROLES)
@@ -155,7 +155,7 @@ class DrawingCog(commands.Cog):
         drawing_msg = await ctx.send(embed=drawing.generate_embed())
         drawing.set_ids(drawing_msg)
         drawing.create_in_db()
-        self.active_drawing_tasks.append(asyncio.ensure_future(self.run_drawing(drawing)))
+        self.active_drawing_tasks.append({drawing.message_id: asyncio.ensure_future(self.run_drawing(drawing))})
 
         await drawing.msg.add_reaction('\N{PARTY POPPER}')
 
@@ -204,7 +204,7 @@ class DrawingCog(commands.Cog):
         drawing_msg = await ctx.send(embed=drawing.generate_embed())
         drawing.set_ids(drawing_msg)
         drawing.create_in_db()
-        self.active_drawing_tasks.append(asyncio.ensure_future(self.run_drawing(drawing)))
+        self.active_drawing_tasks.append({drawing.message_id: asyncio.ensure_future(self.run_drawing(drawing))})
 
         await drawing_msg.add_reaction('\N{PARTY POPPER}')
     
@@ -225,7 +225,8 @@ class DrawingCog(commands.Cog):
         print('Drawing for {0} has ended'.format(drawing.prize))
         await msg.edit(embed=drawing.generate_embed())
         drawing.end()
-
+        self.active_drawing_tasks = [task for task in self.active_drawing_tasks if drawing.message_id in task]
+        
         winners = await self.select_winners(drawing)
 
         if len(winners) == 0:
