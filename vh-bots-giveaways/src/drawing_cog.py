@@ -145,11 +145,9 @@ class DrawingCog(commands.Cog):
 
         drawing = Drawing(int(time.time()), winners, duration_secs, claim_duration_secs, prize, drawing_type, True)
         
-        drawing_msg = await ctx.send(content='Generating drawing...')
+        drawing_msg = await ctx.send(embed=drawing.generate_embed())
         drawing.set_ids(drawing_msg)
         drawing.create_in_db()
-
-        await drawing_msg.edit(content='', embed=drawing.generate_embed())
 
         await drawing.msg.add_reaction('\N{PARTY POPPER}')
 
@@ -197,11 +195,9 @@ class DrawingCog(commands.Cog):
 
         drawing = Drawing(int(time.time()), winners, duration_secs, claim_duration_secs, prize, drawing_type, False)
         
-        drawing_msg = await ctx.send(content='Generating drawing...')
+        drawing_msg = await ctx.send(embed=drawing.generate_embed())
         drawing.set_ids(drawing_msg)
         drawing.create_in_db()
-
-        await drawing_msg.edit(content='', embed=drawing.generate_embed())
 
         await drawing_msg.add_reaction('\N{PARTY POPPER}')
 
