@@ -1,0 +1,44 @@
+[
+    {
+        "_key": "1",
+        "name": "Test Redemption 1",
+        "cost": 1111,
+        "enabled": true,
+        "redemption_count": 3
+    },
+    {
+        "_key": "2",
+        "name": "Second Redemption",
+        "cost": 420,
+        "enabled": false,
+        "redemption_count": 9
+    },
+    {
+        "_key": "3",
+        "name": "Redemption the Third",
+        "cost": 1111,
+        "enabled": false,
+        "redemption_count": 4
+    },
+    {
+        "_key": "4",
+        "name": "Redeem #4",
+        "cost": 999,
+        "enabled": true,
+        "redemption_count": 0
+    },
+    {
+        "_key": "5",
+        "name": "5th Times a Charm",
+        "cost": 999,
+        "enabled": true,
+        "redemption_count": 11
+    },
+    {
+        "_key": "6",
+        "name": "Last one baybee",
+        "cost": 10,
+        "enabled": false,
+        "redemption_count": 5
+    }
+]

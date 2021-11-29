@@ -1,0 +1,7 @@
+{
+    "DB_SERVER": "localhost",
+    "DB_PORT": 8529,
+    "DB_USER": "",
+    "DB_PASS": "",
+    "DB_DATABASE": ""
+}

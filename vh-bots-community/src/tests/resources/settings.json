@@ -1,0 +1,65 @@
+[
+    {
+        "_key": "admin",
+        "ADMIN_ROLES": {
+            "display_name": "Bot Admin Roles",
+            "description": "IDs of roles that are considered bot administrators",
+            "value": ["792217976056709161"]
+        },
+        "COMMAND_CHANNELS": {
+            "display_name": "Command-Enabled Channels",
+            "description": "Channels where administrators can run select commands",
+            "value": ["737033097446424659"]
+        },
+        "EMBED_COLOUR": {
+            "display_name": "Embed Colour",
+            "description": "RGB values of the embed message highlight color",
+            "value": [36, 133, 26]
+        }
+    },
+    {
+        "_key": "activity",
+        "AWARD_ENABLED_CHANNELS": {
+            "display_name": "Award-Enabled Channels",
+            "description": "List of channels that users can receive awards randomly for messages, as well as any additional multipliers",
+            "value": [
+                {
+                    "id": "810612207209152553",
+                    "frequency_multiplier": 1.0,
+                    "point_multiplier": 2.0
+                }
+            ]
+        },
+        "BASE_AWARD_CHANCE": {
+            "display_name": "Base Message Award Chance",
+            "description": "Base chance a user's message will trigger a point award, as a decimal (e.g. a 5% chance is 0.05, a 0.1% chance is 0.001)",
+            "value": 1.00
+        }
+    },
+    {
+        "_key": "background",
+        "AWARD_PROCESS_DELAY": {
+            "display_name": "Award Processing Delay",
+            "description": "Minimum time (in minutes) a queued award is pending before the points are credited to the user",
+            "value": 30
+        },
+        "AWARD_PROCESS_INTERVAL": {
+            "display_name": "Award Processing Interval",
+            "description": "How often (in minutes) the bot should attempt to process any pending awards",
+            "value": 5
+        },
+        "PROCESS_AWARDS": {
+            "display_name": "Process Awards?",
+            "description": "Whether or not the bot should process the award queue on the interval specified",
+            "value": true
+        }
+    },
+    {
+        "_key": "rewards",
+        "REDEMPTION_CHANNEL": {
+            "display_name": "Reward Redemption Channel",
+            "description": "Channel ID that user reward redemptions should be posted to",
+            "value": "781656636531015690"
+        }
+    }
+]
