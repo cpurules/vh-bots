@@ -17,7 +17,7 @@ class DrawingCog(commands.Cog):
         self.bot = bot
         self.special_team_role_id = None
         self.separate_cit_channel = CONFIG.SEPARATE_CIT_CHANNEL
-        self.active_drawings = []
+        self.active_drawing_tasks = []
 
     @staticmethod
     def __parse_type_arg(drawing_type: str):
@@ -52,12 +52,11 @@ class DrawingCog(commands.Cog):
     @commands.Cog.listener()
     async def on_ready(self):
         print('ACTIVE_DRAWINGS == 0 check')
-        if len(self.active_drawings) == 0: # only run this once
+        if len(self.active_drawing_tasks) == 0: # only run this once
             print('ACTIVE_DRAWINGS == 0')
-            self.active_drawings = Drawing.get_all_active_drawings()
-            for drawing in self.active_drawings:
-                print('drawing {0} - {1}'.format(drawing.message_id, drawing.prize))
-            await asyncio.gather(*[self.run_drawing(drawing) for drawing in self.active_drawings])
+            active_drawings = Drawing.get_all_active_drawings()
+            for drawing in active_drawings:
+                self.active_drawing_tasks.append(asyncio.ensure_future(self.run_drawing(drawing)))
     
     @commands.command(name='getcitchannel')
     @commands.has_any_role(*CONFIG.COMMAND_ENABLED_ROLES)
@@ -156,11 +155,9 @@ class DrawingCog(commands.Cog):
         drawing_msg = await ctx.send(embed=drawing.generate_embed())
         drawing.set_ids(drawing_msg)
         drawing.create_in_db()
-        self.active_drawings.append(drawing)
+        self.active_drawing_tasks.append(asyncio.ensure_future(self.run_drawing(drawing)))
 
         await drawing.msg.add_reaction('\N{PARTY POPPER}')
-        
-        asyncio.ensure_future(self.run_drawing(drawing))
 
     @commands.command(name='drawing')
     @commands.has_any_role(*CONFIG.COMMAND_ENABLED_ROLES)
@@ -207,11 +204,9 @@ class DrawingCog(commands.Cog):
         drawing_msg = await ctx.send(embed=drawing.generate_embed())
         drawing.set_ids(drawing_msg)
         drawing.create_in_db()
-        self.active_drawings.append(drawing)
+        self.active_drawing_tasks.append(asyncio.ensure_future(self.run_drawing(drawing)))
 
         await drawing_msg.add_reaction('\N{PARTY POPPER}')
-
-        asyncio.ensure_future(self.run_drawing(drawing))
     
     async def run_drawing(self, drawing):
         msg_channel = CONFIG.get_guild_text_channel(drawing.channel_id)
@@ -449,6 +444,10 @@ class DrawingCog(commands.Cog):
         await ctx.channel.send(content=generate_reminder_message(channel_role, pitfall_emoji, events_team_role, time_left))
         
         await ctx.message.delete()
+    
+    def cancel_active_tasks(self):
+        for task in self.active_drawing_tasks:
+            task.cancel()
 
 def generate_reminder_message(channel_role, pitfall_emoji, events_team_role, time_left):
     content = """{0}
