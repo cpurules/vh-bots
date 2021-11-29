@@ -1,6 +1,8 @@
 import asyncio
 import discord
 import time
+
+from database import Database
 from enum import Enum
 
 class DrawingType(Enum):
@@ -18,7 +20,8 @@ class DrawingType(Enum):
 
 class Drawing:
     # duration in seconds
-    def __init__(self, winners, duration, claim_duration, prize, drawing_type, is_special):
+    def __init__(self, drawing_id: int, winners, duration, claim_duration, prize, drawing_type, is_special):
+        self.drawing_id = None
         self.winners = winners
         self.duration = duration
         self.claim_duration = claim_duration
@@ -28,6 +31,23 @@ class Drawing:
         self.startTime = None
         self.endTime = None
         self.msg = None
+    
+    @staticmethod
+    def create_drawing_from_db_obj(db_object):
+        return Drawing(int(db_object('_key')), db_object['winners'], db_object['duration'], db_object['claim_duration'],
+                        db_object['prize'], db_object['type'], db_object['is_special']) 
+    
+    @staticmethod
+    def get_all_drawings():
+        db = Database()
+
+        drawings = []
+        for drawing in db.giveaways.fetchAll():
+            drawings.append(Drawing.create_drawing_from_db_obj(drawing))
+        
+        return drawings
+    
+    
     
     def generate_embed(self):
         embed_title = 'Drawing for {0}'.format(self.prize)
