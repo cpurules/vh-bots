@@ -19,10 +19,6 @@ class DrawingCog(commands.Cog):
         self.special_team_role_id = None
         self.separate_cit_channel = CONFIG.SEPARATE_CIT_CHANNEL
 
-        ACTIVE_DRAWINGS = Drawing.get_all_active_drawings()
-        for drawing in ACTIVE_DRAWINGS:
-            asyncio.ensure_future(self.run_drawing(drawing))
-
     @staticmethod
     def __parse_type_arg(drawing_type: str):
         return DrawingType.from_str(drawing_type)
@@ -52,6 +48,13 @@ class DrawingCog(commands.Cog):
             duration_secs = duration_int * 60 * 60 * 24
         
         return duration_secs
+    
+    @commands.Cog.listener()
+    async def on_ready(self):
+        if len(ACTIVE_DRAWINGS) == 0: # only run this once
+            ACTIVE_DRAWINGS = Drawing.get_all_active_drawings()
+            for drawing in ACTIVE_DRAWINGS:
+                await asyncio.ensure_future(self.run_drawing(drawing))
     
     @commands.command(name='getcitchannel')
     @commands.has_any_role(*CONFIG.COMMAND_ENABLED_ROLES)
