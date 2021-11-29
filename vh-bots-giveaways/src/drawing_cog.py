@@ -51,7 +51,9 @@ class DrawingCog(commands.Cog):
     
     @commands.Cog.listener()
     async def on_ready(self):
+        print('ACTIVE_DRAWINGS == 0 check')
         if len(ACTIVE_DRAWINGS) == 0: # only run this once
+            print('ACTIVE_DRAWINGS == 0')
             ACTIVE_DRAWINGS = Drawing.get_all_active_drawings()
             for drawing in ACTIVE_DRAWINGS:
                 await asyncio.ensure_future(self.run_drawing(drawing))
