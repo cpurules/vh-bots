@@ -490,7 +490,7 @@ class SettingsCog(commands.Cog):
             
             await ctx.send(embed=edit_embed.build())
         elif action == "edit":
-            if setting.is_simple_list() and not setting.token == 'EMBED_COLOUR':
+            if setting.is_simple_list() and not setting.token in ['EMBED_COLOUR', 'AWARD_ENABLED_CHANNELS']:
                 await self.list_menu_handler(ctx, setting)
             else:
                 # launch per-command handlers

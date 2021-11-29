@@ -25,7 +25,10 @@ class BotSetting:
         return type(self.value) in [list, dict]
     
     def is_simple_list(self):
-        return isinstance(self.value, list) and not type(self.value[0]) in [list, dict]
+        # technically this will return true for empty complex lists
+        # however this is only used in settings_cog.py after we already check for complex list settings
+        # so it's okay and fixes the issue of an empty complex list throwing an IndexError
+        return isinstance(self.value, list) and (len(self.value) == 0 or not type(self.value[0]) in [list, dict])
     
     def save(self, overwrite: bool=False, value_cast=None):
         value = self.value
@@ -121,7 +124,7 @@ class BotSettings:
     #staticmethod
     def get_setting(area: str, token: str, value_cast=None):
         try:
-            setting = Database().settings.fetchDocument('community;{0};{1}'.format(area, token))
+            setting = Database().settings.fetchDocument('vh-community-bot;{0};{1}'.format(area, token))
             return BotSetting(area, token, setting['display_name'], setting['value'], setting['description'], value_cast)
         except (DocumentNotFoundError, KeyError):
             raise DocumentNotFoundError("Unable to find configuration item {0}.{1}".format(area, token))
@@ -129,14 +132,14 @@ class BotSettings:
     #staticmethod
     def get_all_areas():
         areas = []
-        aql_query = 'FOR s IN settings FILTER s._key LIKE "community;%" COLLECT area = SPLIT(s._key, ";")[1] RETURN { "area": area }'
+        aql_query = 'FOR s IN settings FILTER s._key LIKE "vh-community-bot;%" COLLECT area = SPLIT(s._key, ";")[1] RETURN { "area": area }'
         aql_results = Database().db.AQLQuery(aql_query, rawResults=True)
         return [result['area'] for result in aql_results]
 
     #staticmethod
     def get_all_area_settings(area: str):
         settings = {}
-        aql_query = 'FOR s IN settings FILTER s._key LIKE "community;{0};%" RETURN s'.format(area)
+        aql_query = 'FOR s IN settings FILTER s._key LIKE "vh-community-bot;{0};%" RETURN s'.format(area)
         aql_results = Database().db.AQLQuery(aql_query, rawResults=True)
         
         for result in aql_results:
