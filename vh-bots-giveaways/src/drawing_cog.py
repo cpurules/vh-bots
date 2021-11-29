@@ -227,11 +227,11 @@ class DrawingCog(commands.Cog):
         print('Drawing for {0} has ended'.format(drawing.prize))
         await msg.edit(embed=drawing.generate_embed())
         drawing.end()
-        
+
         winners = await self.select_winners(drawing)
 
         if len(winners) == 0:
-            await msg_channel.send(content='Oops!  Nobody won this drawing :(')
+            await msg_channel.send(content='Oops!  Nobody won the **{0}** drawing :('.format(drawing.prize))
             return
         
         return
