@@ -121,7 +121,7 @@ class Drawing:
         await self.msg.edit(embed=self.generate_embed())
 
     def time_remaining(self):
-        return self.endTime - int(time.time())
+        return max(0, self.start_time + self.duration - int(time.time()))
 
     def time_to_next_update(self):
         time_remaining = self.time_remaining()
