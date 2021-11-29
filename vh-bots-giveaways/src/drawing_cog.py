@@ -208,7 +208,7 @@ class DrawingCog(commands.Cog):
         asyncio.ensure_future(self.run_drawing(drawing))
     
     async def run_drawing(self, drawing):
-        msg_channel = BotConfig.get_guild_text_channel(drawing.channel_id)
+        msg_channel = CONFIG.get_guild_text_channel(drawing.channel_id)
         if msg_channel is None:
             return
         msg = await msg_channel.fetch_message(drawing.message_id)
@@ -233,7 +233,7 @@ class DrawingCog(commands.Cog):
         #await self.process_winners(drawing, winners)
     
     async def select_winners(self, drawing):
-        msg_channel = drawing.channel_id
+        msg_channel = CONFIG.get_guild_text_channel(drawing.channel_id)
         drawing_msg = await msg_channel.fetch_message(drawing.message_id)
 
         reactions = drawing_msg.reactions
