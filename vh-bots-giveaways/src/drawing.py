@@ -52,7 +52,7 @@ class Drawing:
         db = Database()
 
         drawings = []
-        aql_query = 'FOR d IN drawings FILTER d.ended_flag == false'
+        aql_query = 'FOR d IN drawings FILTER d.ended_flag == false RETURN d'
         aql_result = db.db.AQLQuery(aql_query, rawResults=True)
         for result in aql_result:
             drawings.append(Drawing.create_drawing_from_db_obj(result))
