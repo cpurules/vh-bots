@@ -57,6 +57,7 @@ class GuildMemberCog(commands.Cog):
     @commands.check(CogHelpers.check_is_channel_or_dm)
     async def award_points(self, ctx, member_id: int=None, points_delta: int=None):
         if member_id is None or points_delta is None:
+            await ctx.invoke(self.bot.get_command('c.help'), flag='c.award')
             return
         
         award_embed = EmbedBuilder().setTitle('Award Points to Guild Member') \
@@ -85,6 +86,7 @@ class GuildMemberCog(commands.Cog):
     @commands.check(CogHelpers.check_is_channel_or_dm)
     async def lookup_member(self, ctx, member_id: int=None):
         if member_id is None:
+            await ctx.invoke(self.bot.get_command('c.help'), flag='c.lookup')
             return
         
         info_embed = EmbedBuilder().setTitle('Guild Member Profile') \
@@ -108,6 +110,7 @@ class GuildMemberCog(commands.Cog):
     @commands.check(CogHelpers.check_is_channel_or_dm)
     async def set_member_balance(self, ctx, member_id: int=None, new_balance: int=None):
         if member_id is None or new_balance is None:
+            await ctx.invoke(self.bot.get_command('c.help'), flag='c.setbalance')
             return
         
         update_embed = EmbedBuilder().setTitle('Update Guild Member Balance') \
