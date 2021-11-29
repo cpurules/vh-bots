@@ -46,6 +46,8 @@ class ListenerCog(commands.Cog):
             return
         if GuildMember.get_member_by_id(msg.author.id) is None:
             return
+        if msg.content.startswith("LF ") or msg.content.startswith("LF:"):
+            return
         
         listening_channel = listening_channel[0]
         
