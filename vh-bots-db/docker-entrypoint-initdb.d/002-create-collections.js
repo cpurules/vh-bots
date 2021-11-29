@@ -15,6 +15,6 @@ try {
 catch {}
 
 try {
-  db._create('giveaways');
+  db._create('drawings');
 }
 catch {}

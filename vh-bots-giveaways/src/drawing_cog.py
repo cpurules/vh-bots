@@ -2,17 +2,22 @@ import asyncio
 import discord
 import math
 import random
+import time
+
 from config import BotConfig
 from discord.ext import commands
+from database import Database
 from drawing import Drawing, DrawingType
 
 CONFIG = BotConfig()
+DB = Database()
 
 class DrawingCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.special_team_role_id = None
         self.separate_cit_channel = CONFIG.SEPARATE_CIT_CHANNEL
+        self.active_drawing_tasks = []
 
     @staticmethod
     def __parse_type_arg(drawing_type: str):
@@ -43,6 +48,15 @@ class DrawingCog(commands.Cog):
             duration_secs = duration_int * 60 * 60 * 24
         
         return duration_secs
+    
+    @commands.Cog.listener()
+    async def on_ready(self):
+        print('ACTIVE_DRAWINGS == 0 check')
+        if len(self.active_drawing_tasks) == 0: # only run this once
+            print('ACTIVE_DRAWINGS == 0')
+            active_drawings = Drawing.get_all_active_drawings()
+            for drawing in active_drawings:
+                self.active_drawing_tasks.append({drawing.message_id: asyncio.ensure_future(self.run_drawing(drawing))})
     
     @commands.command(name='getcitchannel')
     @commands.has_any_role(*CONFIG.COMMAND_ENABLED_ROLES)
@@ -136,15 +150,14 @@ class DrawingCog(commands.Cog):
 
         await ctx.message.delete()
 
-        drawing = Drawing(winners, duration_secs, claim_duration_secs, prize, drawing_type, True)
-        drawing.start()
+        drawing = Drawing(int(time.time()), winners, duration_secs, claim_duration_secs, prize, drawing_type, True)
         
         drawing_msg = await ctx.send(embed=drawing.generate_embed())
-        drawing.msg = drawing_msg
+        drawing.set_ids(drawing_msg)
+        drawing.create_in_db()
+        self.active_drawing_tasks.append({drawing.message_id: asyncio.ensure_future(self.run_drawing(drawing))})
 
         await drawing.msg.add_reaction('\N{PARTY POPPER}')
-
-        asyncio.ensure_future(self.run_drawing(drawing))
 
     @commands.command(name='drawing')
     @commands.has_any_role(*CONFIG.COMMAND_ENABLED_ROLES)
@@ -186,41 +199,48 @@ class DrawingCog(commands.Cog):
 
         await ctx.message.delete()
 
-        drawing = Drawing(winners, duration_secs, claim_duration_secs, prize, drawing_type, False)
-        drawing.start()
+        drawing = Drawing(int(time.time()), winners, duration_secs, claim_duration_secs, prize, drawing_type, False)
         
         drawing_msg = await ctx.send(embed=drawing.generate_embed())
-        drawing.msg = drawing_msg
+        drawing.set_ids(drawing_msg)
+        drawing.create_in_db()
+        self.active_drawing_tasks.append({drawing.message_id: asyncio.ensure_future(self.run_drawing(drawing))})
 
-        await drawing.msg.add_reaction('\N{PARTY POPPER}')
-
-        asyncio.ensure_future(self.run_drawing(drawing))
+        await drawing_msg.add_reaction('\N{PARTY POPPER}')
     
     async def run_drawing(self, drawing):
-        ctx = await self.bot.get_context(drawing.msg)
+        msg_channel = CONFIG.get_guild_text_channel(drawing.channel_id)
+        if msg_channel is None:
+            drawing.end()
+            return
+        msg = await msg_channel.fetch_message(drawing.message_id)
+        if msg is None:
+            drawing.end()
+            return
 
         while not drawing.is_ended():
-            await drawing.update_embed()
+            await msg.edit(embed=drawing.generate_embed())
             await asyncio.sleep(drawing.time_to_next_update())
         
-        await drawing.update_embed()
-        print('Drawing has ended')
-
+        print('Drawing for {0} has ended'.format(drawing.prize))
+        await msg.edit(embed=drawing.generate_embed())
+        drawing.end()
+        self.active_drawing_tasks = [task for task in self.active_drawing_tasks if drawing.message_id in task]
+        
         winners = await self.select_winners(drawing)
 
         if len(winners) == 0:
-            await ctx.send(content='Oops!  Nobody won this drawing :(')
+            await msg_channel.send(content='Oops!  Nobody won the **{0}** drawing :('.format(drawing.prize))
             return
         
         await self.announce_winners(drawing, winners)
         await self.process_winners(drawing, winners)
     
     async def select_winners(self, drawing):
-        ctx = await self.bot.get_context(drawing.msg)
-        drawing.msg = await ctx.fetch_message(drawing.msg.id) # Update to get reaction list
-        guild = ctx.guild
+        msg_channel = CONFIG.get_guild_text_channel(drawing.channel_id)
+        drawing_msg = await msg_channel.fetch_message(drawing.message_id)
 
-        reactions = drawing.msg.reactions
+        reactions = drawing_msg.reactions
         for reaction in reactions:
             if not reaction.emoji == '\N{PARTY POPPER}':
                 continue
@@ -238,8 +258,9 @@ class DrawingCog(commands.Cog):
         return winners
     
     async def announce_winners(self, drawing, winners):
-        ctx = await self.bot.get_context(drawing.msg)
-        guild = ctx.guild
+        msg_channel = CONFIG.get_guild_text_channel(drawing.channel_id)
+        
+        guild = CONFIG.GET_GUILD()
 
         all_winner_mentions = []
         current_winner = 0
@@ -251,16 +272,15 @@ class DrawingCog(commands.Cog):
             current_winner += 1
         
         for winner_mentions in all_winner_mentions:
-            await ctx.send(content='Congratulations to our {0} winners! {1}'.format(drawing.prize, " ".join(winner_mentions)))
+            await msg_channel.send(content='Congratulations to our {0} winners! {1}'.format(drawing.prize, " ".join(winner_mentions)))
         
         if drawing.drawing_type == DrawingType.GIVEAWAY:
             pitfall_emoji = await guild.fetch_emoji(CONFIG.PITFALL_EMOJI)
             events_team_role = guild.get_role(CONFIG.EVENTS_TEAM_ROLE)
-            await ctx.send(content=generate_giveaway_instructions(pitfall_emoji, events_team_role))
+            await msg_channel.send(content=generate_giveaway_instructions(pitfall_emoji, events_team_role))
 
     async def process_winners(self, drawing, winners):
-        ctx = await self.bot.get_context(drawing.msg)
-        guild = ctx.guild
+        guild = CONFIG.GET_GUILD()
         
         if drawing.drawing_type == DrawingType.GIVEAWAY:
             max_per_group = CONFIG.MAX_WINNERS_PER_GIVEAWAY_GROUP
@@ -425,6 +445,10 @@ class DrawingCog(commands.Cog):
         await ctx.channel.send(content=generate_reminder_message(channel_role, pitfall_emoji, events_team_role, time_left))
         
         await ctx.message.delete()
+    
+    def cancel_active_tasks(self):
+        for task in self.active_drawing_tasks:
+            task.cancel()
 
 def generate_reminder_message(channel_role, pitfall_emoji, events_team_role, time_left):
     content = """{0}
@@ -489,3 +513,4 @@ def generate_giveaway_instructions(pitfall_emoji, events_team_role):
 
 def setup(bot):
     bot.add_cog(DrawingCog(bot))
+    CONFIG.bot = bot

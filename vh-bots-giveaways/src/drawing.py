@@ -1,6 +1,8 @@
 import asyncio
 import discord
 import time
+
+from database import Database
 from enum import Enum
 
 class DrawingType(Enum):
@@ -9,6 +11,8 @@ class DrawingType(Enum):
 
     @staticmethod
     def from_str(label: str):
+        if label.startswith('DrawingType.'):
+            label = label.split('.')[1]
         if label.upper() in ['G', 'GIVEAWAY']:
             return DrawingType.GIVEAWAY
         elif label.upper() in ['E', 'EVENT']:
@@ -18,16 +22,87 @@ class DrawingType(Enum):
 
 class Drawing:
     # duration in seconds
-    def __init__(self, winners, duration, claim_duration, prize, drawing_type, is_special):
+    def __init__(self, start_time: int, winners, duration, claim_duration, prize, drawing_type, is_special, message_id: int=None, channel_id: int=None, ended_flag=False):
+        self.message_id = message_id
+        self.channel_id = channel_id
+        self.start_time = start_time
         self.winners = winners
         self.duration = duration
         self.claim_duration = claim_duration
         self.prize = prize
         self.drawing_type = drawing_type
         self.is_special = is_special
-        self.startTime = None
-        self.endTime = None
-        self.msg = None
+        self.ended_flag = ended_flag
+
+    @staticmethod
+    def create_drawing_from_db_obj(db_object):
+        return Drawing(db_object['start_time'], db_object['winners'], db_object['duration'], db_object['claim_duration'],
+                        db_object['prize'], DrawingType.from_str(db_object['drawing_type']), db_object['is_special'], int(db_object['_key']), int(db_object['channel_id']), db_object['ended_flag']) 
+    
+    @staticmethod
+    def get_all_drawings():
+        db = Database()
+
+        drawings = []
+        for drawing in db.drawings.fetchAll():
+            drawings.append(Drawing.create_drawing_from_db_obj(drawing))
+        
+        return drawings
+    
+    @staticmethod
+    def get_all_active_drawings():
+        db = Database()
+
+        drawings = []
+        aql_query = 'FOR d IN drawings FILTER d.ended_flag == false RETURN d'
+        aql_result = db.db.AQLQuery(aql_query, rawResults=True)
+        for result in aql_result:
+            drawings.append(Drawing.create_drawing_from_db_obj(result))
+        
+        return drawings
+    
+    def create_in_db(self):
+        if self.message_id is None or self.channel_id is None:
+            raise ValueError("Cannot save to database without setting message and channel ids")
+        
+        db = Database()
+
+        if str(self.message_id) in db.drawings:
+            raise ValueError("This drawing already exists in the database")
+        
+        drawing = db.drawings.createDocument()
+        drawing._key = str(self.message_id)
+        drawing['channel_id'] = str(self.channel_id)
+        drawing['winners'] = self.winners
+        drawing['start_time'] = self.start_time
+        drawing['duration'] = self.duration
+        drawing['claim_duration'] = self.claim_duration
+        drawing['prize'] = self.prize
+        drawing['drawing_type'] = self.drawing_type
+        drawing['is_special'] = self.is_special
+        drawing['ended_flag'] = self.ended_flag
+        drawing.save()
+    
+    def end(self):
+        drawing = self.get_drawing_db_object()
+        drawing['ended_flag'] = True
+        drawing.save()
+        self.ended_flag = True
+    
+    def get_drawing_db_object(self):
+        if self.message_id is None:
+            return None
+
+        db = Database()
+
+        drawing = db.drawings.fetchDocument(str(self.message_id))
+        return drawing
+    
+    def get_end_time(self):
+        return self.start_time + self.duration
+
+    def is_ended(self):
+        return time.time() > self.get_end_time()
     
     def generate_embed(self):
         embed_title = 'Drawing for {0}'.format(self.prize)
@@ -45,11 +120,16 @@ class Drawing:
         embed.add_field(name="Time Remaining", value=embed_remaining)
         return embed
     
+    def set_ids(self, message):
+        self.message_id = message.id
+        self.channel_id = message.channel.id
+    
+    #TODO get message from message_id
     async def update_embed(self):
         await self.msg.edit(embed=self.generate_embed())
 
     def time_remaining(self):
-        return self.endTime - int(time.time())
+        return max(0, self.start_time + self.duration - int(time.time()))
 
     def time_to_next_update(self):
         time_remaining = self.time_remaining()
@@ -127,11 +207,3 @@ class Drawing:
             formatted_durations.append("{0} {1}".format(secs, span))
         
         return ', '.join(formatted_durations)
-    
-    def start(self):
-        print('Starting drawing...')
-        self.startTime = int(time.time())
-        self.endTime = self.startTime + self.duration
-    
-    def is_ended(self):
-        return time.time() > self.endTime
