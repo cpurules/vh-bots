@@ -33,8 +33,13 @@ async def on_ready():
 @bot.command(name='reload')
 @commands.has_any_role(*CONFIG.COMMAND_ENABLED_ROLES)
 async def reload(ctx):
+    # Cancel active tasks since they will be recreated
+    bot.get_cog('DrawingCog').cancel_active_tasks()
+
     for extension in initial_extensions:
         bot.reload_extension(extension)
+    await bot.get_cog('DrawingCog').on_ready()
+    
     await ctx.message.author.send('Reloaded the giveaway bot!')
 
 @bot.command(name='commands',aliases=['help'])
