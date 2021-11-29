@@ -23,7 +23,7 @@ class BotConfig:
     def __init__(self, bot=None):
         self.bot = bot
 
-	file = os.getenv("CONFIG_FILE")
+        file = os.getenv("CONFIG_FILE")
         if file is None:
             raise ValueError("Missing CONFIG_FILE environment variable!")
 
