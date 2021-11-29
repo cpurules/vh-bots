@@ -35,4 +35,4 @@ class Database:
         if not self.db.hasCollection('giveaways'):
             self.db.createCollection(name='giveaways')
             self.db.reloadCollections()
-        self.giveaways = self.db['giveaways']
+        self.drawings = self.db['drawings']
