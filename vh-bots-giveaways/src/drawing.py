@@ -20,22 +20,21 @@ class DrawingType(Enum):
 
 class Drawing:
     # duration in seconds
-    def __init__(self, drawing_id: int, winners, duration, claim_duration, prize, drawing_type, is_special):
-        self.drawing_id = None
+    def __init__(self, start_time, winners, duration, claim_duration, prize, drawing_type, is_special, message_id: int=None, ended_flag=False):
+        self.message_id = message_id
+        self.start_time = start_time
         self.winners = winners
         self.duration = duration
         self.claim_duration = claim_duration
         self.prize = prize
         self.drawing_type = drawing_type
         self.is_special = is_special
-        self.startTime = None
-        self.endTime = None
-        self.msg = None
-    
+        self.ended_flag = ended_flag
+
     @staticmethod
     def create_drawing_from_db_obj(db_object):
-        return Drawing(int(db_object('_key')), db_object['winners'], db_object['duration'], db_object['claim_duration'],
-                        db_object['prize'], db_object['type'], db_object['is_special']) 
+        return Drawing(db_object['winners'], db_object['duration'], db_object['claim_duration'],
+                        db_object['prize'], db_object['type'], db_object['is_special'], int(db_object['_key']), db_object['ended_flag']) 
     
     @staticmethod
     def get_all_drawings():
@@ -47,11 +46,42 @@ class Drawing:
         
         return drawings
     
-    def get_drawing_db_object(self):
+    def create_in_db(self):
+        if self.message_id is None:
+            raise ValueError("Cannot save to database without setting message_id")
+        
         db = Database()
 
-        drawing = db.giveaways.fetchDocument(str(self.drawing_id))
+        if str(self.message_id) in db.giveaways:
+            raise ValueError("This drawing already exists in the database")
+        
+        now = time.time()
+        drawing = db.giveaways.createDocument()
+        drawing._key = str(self.message_id)
+        drawing['winners'] = self.winners
+        drawing['start_time'] = now
+        drawing['duration'] = self.duration
+        drawing['claim_duration'] = self.claim_duration
+        drawing['prize'] = self.prize
+        drawing['drawing_type'] = self.drawing_type
+        drawing['is_special'] = self.is_special
+        drawing['ended_flag'] = self.ended_flag
+        drawing.save()
+    
+    def get_drawing_db_object(self):
+        if self.message_id is None:
+            return None
+            
+        db = Database()
+
+        drawing = db.giveaways.fetchDocument(str(self.message_id))
         return drawing
+    
+    def get_end_time(self):
+        return self.start_time + self.duration
+
+    def is_ended(self):
+        return time.time() > self.get_end_time()
     
     def generate_embed(self):
         embed_title = 'Drawing for {0}'.format(self.prize)
@@ -69,6 +99,7 @@ class Drawing:
         embed.add_field(name="Time Remaining", value=embed_remaining)
         return embed
     
+    #TODO get message from message_id
     async def update_embed(self):
         await self.msg.edit(embed=self.generate_embed())
 
@@ -151,11 +182,3 @@ class Drawing:
             formatted_durations.append("{0} {1}".format(secs, span))
         
         return ', '.join(formatted_durations)
-    
-    def start(self):
-        print('Starting drawing...')
-        self.startTime = int(time.time())
-        self.endTime = self.startTime + self.duration
-    
-    def is_ended(self):
-        return time.time() > self.endTime
