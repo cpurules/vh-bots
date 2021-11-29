@@ -214,14 +214,13 @@ class DrawingCog(commands.Cog):
         asyncio.ensure_future(self.run_drawing(drawing))
     
     async def run_drawing(self, drawing):
-        print('running drawing {0} / {1} - {2}'.format(drawing.message_id, drawing.channel_id, drawing.prize))
         msg_channel = CONFIG.get_guild_text_channel(drawing.channel_id)
         if msg_channel is None:
-            print('no channel')
+            drawing.end()
             return
         msg = await msg_channel.fetch_message(drawing.message_id)
         if msg is None:
-            print('no msg')
+            drawing.end()
             return
 
         while not drawing.is_ended():
