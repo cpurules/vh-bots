@@ -2,6 +2,8 @@ import asyncio
 import discord
 import math
 import random
+import time
+
 from config import BotConfig
 from discord.ext import commands
 from database import Database
@@ -9,12 +11,15 @@ from drawing import Drawing, DrawingType
 
 CONFIG = BotConfig()
 DB = Database()
+ACTIVE_DRAWINGS = []
 
 class DrawingCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.special_team_role_id = None
         self.separate_cit_channel = CONFIG.SEPARATE_CIT_CHANNEL
+
+        ACTIVE_DRAWINGS = Drawing.get_all_active_drawings()
 
     @staticmethod
     def __parse_type_arg(drawing_type: str):
@@ -138,15 +143,17 @@ class DrawingCog(commands.Cog):
 
         await ctx.message.delete()
 
-        drawing = Drawing(winners, duration_secs, claim_duration_secs, prize, drawing_type, True)
-        drawing.start()
+        drawing = Drawing(time.time(), winners, duration_secs, claim_duration_secs, prize, drawing_type, True)
         
-        drawing_msg = await ctx.send(embed=drawing.generate_embed())
-        drawing.msg = drawing_msg
+        drawing_msg = await ctx.send(content='Generating drawing...')
+        drawing.set_ids(drawing_msg)
+        drawing.create_in_db()
+
+        await drawing_msg.edit(content='', embed=drawing.generate_embed())
 
         await drawing.msg.add_reaction('\N{PARTY POPPER}')
 
-        asyncio.ensure_future(self.run_drawing(drawing))
+        #asyncio.ensure_future(self.run_drawing(drawing))
 
     @commands.command(name='drawing')
     @commands.has_any_role(*CONFIG.COMMAND_ENABLED_ROLES)
@@ -188,15 +195,17 @@ class DrawingCog(commands.Cog):
 
         await ctx.message.delete()
 
-        drawing = Drawing(winners, duration_secs, claim_duration_secs, prize, drawing_type, False)
-        drawing.start()
+        drawing = Drawing(time.time(), winners, duration_secs, claim_duration_secs, prize, drawing_type, False)
         
-        drawing_msg = await ctx.send(embed=drawing.generate_embed())
-        drawing.msg = drawing_msg
+        drawing_msg = await ctx.send(content='Generating drawing...')
+        drawing.set_ids(drawing_msg)
+        drawing.create_in_db()
 
-        await drawing.msg.add_reaction('\N{PARTY POPPER}')
+        await drawing_msg.edit(content='', embed=drawing.generate_embed())
 
-        asyncio.ensure_future(self.run_drawing(drawing))
+        await drawing_msg.add_reaction('\N{PARTY POPPER}')
+
+        # asyncio.ensure_future(self.run_drawing(drawing))
     
     async def run_drawing(self, drawing):
         ctx = await self.bot.get_context(drawing.msg)
