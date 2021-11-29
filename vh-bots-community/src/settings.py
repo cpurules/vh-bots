@@ -125,6 +125,8 @@ class BotSettings:
     def get_setting(area: str, token: str, value_cast=None):
         try:
             setting = Database().settings.fetchDocument('vh-community-bot;{0};{1}'.format(area, token))
+            if not 'description' in setting:
+                setting['description'] = None
             return BotSetting(area, token, setting['display_name'], setting['value'], setting['description'], value_cast)
         except (DocumentNotFoundError, KeyError):
             raise DocumentNotFoundError("Unable to find configuration item {0}.{1}".format(area, token))
