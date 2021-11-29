@@ -1,0 +1,6 @@
+[run]
+omit = 
+    community-bot-env/*
+    tests/*
+    collection.py
+    setup.py

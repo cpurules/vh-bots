@@ -1,0 +1,79 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+## THIS WILL NEED TO BE UPDATED!! DO NOT EXECUTE AS IS ##
+
+trigger:
+- component/*
+- feature/*
+- hotfix/*
+- development
+
+pr:
+- development
+
+pool:
+  name: 'VHBots'
+
+variables:
+  DB_SERVER: 'localhost'
+  DB_PORT: 8529
+  DB_USER: 'root'
+
+jobs:
+  - job: EnvironmentSetup
+    displayName: 'Set up venv'
+    steps:
+      - script: chmod +x ./setup.sh
+        displayName: 'chmod +x ./setup.sh'
+      - script: ./setup.sh
+        displayName: './setup.sh'
+  - job: Build
+    displayName: 'Build bot'
+    dependsOn: EnvironmentSetup
+    steps:
+      - task: CopyFiles@2
+        displayName: 'Stage artifact files'
+        inputs:
+          sourceFolder: $(Build.SourcesDirectory)
+          targetFolder: $(Build.ArtifactStagingDirectory)
+          contents: |
+            community-bot-env/**
+            *.json
+            *.py
+            !collection.py
+            !setup.py
+      - task: PublishPipelineArtifact@1
+        inputs:
+          targetPath: $(Build.ArtifactStagingDirectory)
+          artifactName: 'vh-community-bot'
+          artifactType: 'pipeline'
+  - job: Test
+    displayName: 'Execute tests'
+    dependsOn: Build
+    variables:
+      - group: DEVELOPMENT
+    steps:
+      - task: qetza.replacetokens.replacetokens-task.replacetokens@3
+        displayName: 'Replace tokens in *.json'
+        inputs:
+          rootDirectory: $(Build.SourcesDirectory)
+          targetFiles: '*.json'
+      - pwsh: Write-Host "##vso[task.setvariable variable=DB_DATABASE;]zzzzz"
+        displayName: Update DB_DATABASE for test case
+      - task: qetza.replacetokens.replacetokens-task.replacetokens@3
+        displayName: 'Replace tokens in dbconfig_nonexistent_db.json'
+        inputs:
+          rootDirectory: '$(Build.SourcesDirectory)/tests/resources'
+          targetFiles: 'dbconfig_nonexistent_db.json'
+      - script: chmod +x ./run-tests.sh
+        displayName: 'chmod +x ./run-tests.sh'
+      - script: ./run-tests.sh
+        displayName: './run-tests.sh'
+      - task: PublishCodeCoverageResults@1
+        condition: succeededOrFailed()
+        inputs:
+          codeCoverageTool: Cobertura
+          summaryFileLocation: 'coverage.xml'
