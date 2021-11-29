@@ -47,7 +47,11 @@ class Drawing:
         
         return drawings
     
-    
+    def get_drawing_db_object(self):
+        db = Database()
+
+        drawing = db.giveaways.fetchDocument(str(self.drawing_id))
+        return drawing
     
     def generate_embed(self):
         embed_title = 'Drawing for {0}'.format(self.prize)
