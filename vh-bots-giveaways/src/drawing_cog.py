@@ -55,7 +55,8 @@ class DrawingCog(commands.Cog):
         if len(self.active_drawings) == 0: # only run this once
             print('ACTIVE_DRAWINGS == 0')
             self.active_drawings = Drawing.get_all_active_drawings()
-                        
+            for drawing in self.active_drawings:
+                print('drawing {0} - {1}'.format(drawing.message_id, drawing.prize))
             await asyncio.gather(*[self.run_drawing(drawing) for drawing in self.active_drawings])
     
     @commands.command(name='getcitchannel')
