@@ -35,7 +35,7 @@ class Drawing:
     @staticmethod
     def create_drawing_from_db_obj(db_object):
         return Drawing(db_object['start_time'], db_object['winners'], db_object['duration'], db_object['claim_duration'],
-                        db_object['prize'], db_object['type'], db_object['is_special'], int(db_object['_key']), int(db_object['channel_id']), db_object['ended_flag']) 
+                        db_object['prize'], db_object['drawing_type'], db_object['is_special'], int(db_object['_key']), int(db_object['channel_id']), db_object['ended_flag']) 
     
     @staticmethod
     def get_all_drawings():
