@@ -20,8 +20,9 @@ class DrawingType(Enum):
 
 class Drawing:
     # duration in seconds
-    def __init__(self, start_time, winners, duration, claim_duration, prize, drawing_type, is_special, message_id: int=None, ended_flag=False):
+    def __init__(self, start_time, winners, duration, claim_duration, prize, drawing_type, is_special, message_id: int=None, channel_id: int=None, ended_flag=False):
         self.message_id = message_id
+        self.channel_id = channel_id
         self.start_time = start_time
         self.winners = winners
         self.duration = duration
@@ -34,7 +35,7 @@ class Drawing:
     @staticmethod
     def create_drawing_from_db_obj(db_object):
         return Drawing(db_object['start_time'], db_object['winners'], db_object['duration'], db_object['claim_duration'],
-                        db_object['prize'], db_object['type'], db_object['is_special'], int(db_object['_key']), db_object['ended_flag']) 
+                        db_object['prize'], db_object['type'], db_object['is_special'], int(db_object['_key']), int(db_object['channel_id']), db_object['ended_flag']) 
     
     @staticmethod
     def get_all_drawings():
@@ -59,8 +60,8 @@ class Drawing:
         return drawings
     
     def create_in_db(self):
-        if self.message_id is None:
-            raise ValueError("Cannot save to database without setting message_id")
+        if self.message_id is None or self.channel_id is None:
+            raise ValueError("Cannot save to database without setting message and channel ids")
         
         db = Database()
 
@@ -69,6 +70,7 @@ class Drawing:
         
         drawing = db.drawings.createDocument()
         drawing._key = str(self.message_id)
+        drawing['channel_id'] = self.channel_id
         drawing['winners'] = self.winners
         drawing['start_time'] = self.start_time
         drawing['duration'] = self.duration
@@ -109,6 +111,10 @@ class Drawing:
         embed.add_field(name="Winners", value=self.winners)
         embed.add_field(name="Time Remaining", value=embed_remaining)
         return embed
+    
+    def set_ids(self, message):
+        self.message_id = message.id
+        self.channel_id = message.channel.id
     
     #TODO get message from message_id
     async def update_embed(self):
