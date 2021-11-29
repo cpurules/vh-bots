@@ -4,9 +4,11 @@ import math
 import random
 from config import BotConfig
 from discord.ext import commands
+from database import Database
 from drawing import Drawing, DrawingType
 
 CONFIG = BotConfig()
+DB = Database()
 
 class DrawingCog(commands.Cog):
     def __init__(self, bot):
