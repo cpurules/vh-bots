@@ -15,6 +15,11 @@ try {
 catch {}
 
 try {
+  db._create('member-game-info');
+}
+catch {}
+
+try {
   db._create('drawings');
 }
 catch {}
