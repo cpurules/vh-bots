@@ -35,7 +35,7 @@ async def on_ready():
 async def reload(ctx):
     for extension in initial_extensions:
         bot.reload_extension(extension)
-    await bot.get_cog('giveaway_cog').on_ready()
+    await bot.get_cog('DrawingCog').on_ready()
     await ctx.message.author.send('Reloaded the giveaway bot!')
 
 @bot.command(name='commands',aliases=['help'])
