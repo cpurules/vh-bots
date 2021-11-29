@@ -33,7 +33,7 @@ class Drawing:
 
     @staticmethod
     def create_drawing_from_db_obj(db_object):
-        return Drawing(db_object['winners'], db_object['duration'], db_object['claim_duration'],
+        return Drawing(db_object['start_time'], db_object['winners'], db_object['duration'], db_object['claim_duration'],
                         db_object['prize'], db_object['type'], db_object['is_special'], int(db_object['_key']), db_object['ended_flag']) 
     
     @staticmethod
@@ -55,11 +55,10 @@ class Drawing:
         if str(self.message_id) in db.giveaways:
             raise ValueError("This drawing already exists in the database")
         
-        now = time.time()
         drawing = db.giveaways.createDocument()
         drawing._key = str(self.message_id)
         drawing['winners'] = self.winners
-        drawing['start_time'] = now
+        drawing['start_time'] = self.start_time
         drawing['duration'] = self.duration
         drawing['claim_duration'] = self.claim_duration
         drawing['prize'] = self.prize
@@ -71,7 +70,7 @@ class Drawing:
     def get_drawing_db_object(self):
         if self.message_id is None:
             return None
-            
+
         db = Database()
 
         drawing = db.giveaways.fetchDocument(str(self.message_id))
