@@ -10,6 +10,11 @@ try {
 catch {}
 
 try {
+  db._create('blocks');
+}
+catch {}
+
+try {
   db._create('queues');
 }
 catch {}
