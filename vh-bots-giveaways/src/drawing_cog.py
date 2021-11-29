@@ -56,7 +56,7 @@ class DrawingCog(commands.Cog):
             print('ACTIVE_DRAWINGS == 0')
             self.active_drawings = Drawing.get_all_active_drawings()
                         
-            await asyncio.gather([self.run_drawing(drawing) for drawing in self.active_drawings])
+            await asyncio.gather(*[self.run_drawing(drawing) for drawing in self.active_drawings])
     
     @commands.command(name='getcitchannel')
     @commands.has_any_role(*CONFIG.COMMAND_ENABLED_ROLES)
