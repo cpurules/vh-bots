@@ -20,7 +20,7 @@ class DrawingType(Enum):
 
 class Drawing:
     # duration in seconds
-    def __init__(self, start_time, winners, duration, claim_duration, prize, drawing_type, is_special, message_id: int=None, channel_id: int=None, ended_flag=False):
+    def __init__(self, start_time: int, winners, duration, claim_duration, prize, drawing_type, is_special, message_id: int=None, channel_id: int=None, ended_flag=False):
         self.message_id = message_id
         self.channel_id = channel_id
         self.start_time = start_time

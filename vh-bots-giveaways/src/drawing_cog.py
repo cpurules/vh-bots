@@ -143,7 +143,7 @@ class DrawingCog(commands.Cog):
 
         await ctx.message.delete()
 
-        drawing = Drawing(time.time(), winners, duration_secs, claim_duration_secs, prize, drawing_type, True)
+        drawing = Drawing(int(time.time()), winners, duration_secs, claim_duration_secs, prize, drawing_type, True)
         
         drawing_msg = await ctx.send(content='Generating drawing...')
         drawing.set_ids(drawing_msg)
@@ -195,7 +195,7 @@ class DrawingCog(commands.Cog):
 
         await ctx.message.delete()
 
-        drawing = Drawing(time.time(), winners, duration_secs, claim_duration_secs, prize, drawing_type, False)
+        drawing = Drawing(int(time.time()), winners, duration_secs, claim_duration_secs, prize, drawing_type, False)
         
         drawing_msg = await ctx.send(content='Generating drawing...')
         drawing.set_ids(drawing_msg)
