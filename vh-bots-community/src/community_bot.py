@@ -155,7 +155,7 @@ async def reload(ctx):
     for extension in initial_extensions:
         bot.reload_extension(extension)
 
-    await ctx.message.author.send(content='Reloaded the queue bot!')
+    await ctx.message.author.send(content='Reloaded the Community Bot!')
 
 @bot.event
 async def on_ready():
