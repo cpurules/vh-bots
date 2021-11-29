@@ -72,7 +72,7 @@ class Drawing:
         
         drawing = db.drawings.createDocument()
         drawing._key = str(self.message_id)
-        drawing['channel_id'] = self.channel_id
+        drawing['channel_id'] = str(self.channel_id)
         drawing['winners'] = self.winners
         drawing['start_time'] = self.start_time
         drawing['duration'] = self.duration
