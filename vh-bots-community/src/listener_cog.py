@@ -55,7 +55,7 @@ class ListenerCog(commands.Cog):
             return LISTENER_SETTINGS['BASE_AWARD_CHANCE'].value * listening_channel.frequency_multiplier
         
         def calculate_points():
-            range_min, range_max = LISTENER_SETTINGS['BASE_AWARD_RANGE']
+            range_min, range_max = LISTENER_SETTINGS['BASE_AWARD_RANGE'].value
             return random.randrange(range_min * listening_channel.point_multiplier,  range_max * listening_channel.point_multiplier) + 1
         
         if random.random() < calculate_award_chance():
