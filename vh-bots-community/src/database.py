@@ -42,6 +42,7 @@ class Database:
         try:
             self.redemptions = self.db['redemptions']
             self.members = self.db['members']
+            self.member_preferences = self.db['member-preferences']
             self.settings = self.db['settings']
             self.awards = self.db['awards']
         except KeyError:
