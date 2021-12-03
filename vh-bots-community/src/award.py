@@ -41,6 +41,21 @@ class Award:
                         db_obj['points'], db_obj['deleted'], awarded_at=awarded_at)
     
     #staticmethod
+    def count_user_awards(user: int, past_hours: int=None):
+        db = Database()
+
+        now = datetime.now()
+        if not past_hours is None:
+            time_delta = datetime.timedelta(hours=past_hours)
+            time_boundary = now - time_delta
+        else:
+            time_boundary = 0
+
+        aql_query = "FOR a IN awards FILTER a.author == '{0}' AND award.queued_at > {1}".format(user, time_boundary)
+        aql_results = db.db.AQLQuery(aql_query, rawResults=True)
+        return len(aql_results)
+
+    #staticmethod
     def get_queued_awards(before: datetime=None):
         db = Database()
         
