@@ -52,7 +52,7 @@ class ListenerCog(commands.Cog):
         listening_channel = listening_channel[0]
         
         def calculate_award_chance():
-            # multiply change by 1.2^-n where n = number of awards the user has received in the past day
+            # multiply chance by 1.2^-n where n = number of awards the user has received in the past day
             repeat_multiplier = 1.2 ** (-1 * Award.count_user_awards(msg.author.id, past_hours=24))
             return (LISTENER_SETTINGS['BASE_AWARD_CHANCE'].value * listening_channel.frequency_multiplier) * repeat_multiplier
         
