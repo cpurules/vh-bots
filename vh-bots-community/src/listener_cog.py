@@ -21,12 +21,12 @@ class ListenerCog(commands.Cog):
 
         ListenerCog.validate_listener_settings()
     
-    #staticmethod
+    @staticmethod
     def reload_listener_settings():
         LISTENER_SETTINGS = BotSettings.get_all_area_settings('activity')
         ListenerCog.validate_listener_settings()
 
-    #staticmethod
+    @staticmethod
     def validate_listener_settings():
         required_tokens = ['BASE_AWARD_CHANCE', 'AWARD_ENABLED_CHANNELS']
         for token in required_tokens:
