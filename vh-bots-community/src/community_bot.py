@@ -15,7 +15,7 @@ bot.remove_command('help') # Will replace this with our custom help command
 
 CONFIG = bot_config.BotConfig(bot=bot)
 
-initial_extensions = ['redemption_cog', 'member_cog', 'listener_cog', 'background_cog', 'general_cog', 'settings_cog']
+initial_extensions = ['redemption_cog', 'member_cog', 'listener_cog', 'background_cog', 'general_cog', 'settings_cog', 'preferences_cog']
 if __name__ == '__main__':
     for extension in initial_extensions:
         bot.load_extension(extension)
