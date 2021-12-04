@@ -44,3 +44,12 @@ class MemberPreferences:
         db = Database()
 
         return db.member_preferences.fetchDocument(str(self._key))
+    
+    def save(self):
+        # This only saves mutable fields
+        db = Database()
+
+        db_obj = db.member_preferences.fetchDocument(self._key)
+
+        db_obj['notify_on_award'] = self.notify_on_award
+        db_obj.save()
