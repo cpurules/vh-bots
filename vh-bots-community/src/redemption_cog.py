@@ -15,7 +15,7 @@ class RedemptionCog(commands.Cog):
         self.bot = bot
         CogHelpers.set_bot(bot)
 
-    #staticmethod
+    @staticmethod
     def generate_reward_lines(rewards, per_page: int=0, current_page: int=0):
         if len(rewards) == 0:
             raise ValueError('List of rewards is empty', rewards)
@@ -272,7 +272,7 @@ class RedemptionCog(commands.Cog):
         if reward_id is None:
             await ctx.invoke(self.bot.get_command('c.help'), flag='c.setreward')
             return
-            
+
         embed_lines = []
         
         reward_id = int(reward_id)

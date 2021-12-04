@@ -6,7 +6,7 @@ class MemberPreferences:
         self._key = int(member_id)
         self.notify_on_award = notify_on_award
     
-    #staticmethod
+    @staticmethod
     def create_preferences(member_id: int, notify_on_award: bool=False):
         db = Database()
         preferences = db.member_preferences
@@ -18,11 +18,11 @@ class MemberPreferences:
 
         return MemberPreferences(member_id, notify_on_award)
     
-    #staticmethod
+    @staticmethod
     def create_preferences_from_db_obj(db_obj):
         return MemberPreferences(db_obj['_key'], db_obj['notify_on_award'])
     
-    #staticmethod
+    @staticmethod
     def get_preferences_by_member_id(member_id: int):
         db = Database()
 

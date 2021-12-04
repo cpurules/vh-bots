@@ -121,7 +121,7 @@ class BotSettingBuilder:
         return BotSetting(self.area, self.token, self.display_name, self.value, self.description)
 
 class BotSettings:
-    #staticmethod
+    @staticmethod
     def get_setting(area: str, token: str, value_cast=None):
         try:
             setting = Database().settings.fetchDocument('vh-community-bot;{0};{1}'.format(area, token))
@@ -131,14 +131,14 @@ class BotSettings:
         except (DocumentNotFoundError, KeyError):
             raise DocumentNotFoundError("Unable to find configuration item {0}.{1}".format(area, token))
     
-    #staticmethod
+    @staticmethod
     def get_all_areas():
         areas = []
         aql_query = 'FOR s IN settings FILTER s._key LIKE "vh-community-bot;%" COLLECT area = SPLIT(s._key, ";")[1] RETURN { "area": area }'
         aql_results = Database().db.AQLQuery(aql_query, rawResults=True)
         return [result['area'] for result in aql_results]
 
-    #staticmethod
+    @staticmethod
     def get_all_area_settings(area: str):
         settings = {}
         aql_query = 'FOR s IN settings FILTER s._key LIKE "vh-community-bot;{0};%" RETURN s'.format(area)

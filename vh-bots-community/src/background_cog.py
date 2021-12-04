@@ -24,12 +24,12 @@ class BackgroundCog(commands.Cog):
         BackgroundCog.validate_background_settings()
         self.process_award_queue.start()
 
-    #staticmethod
+    @staticmethod
     def reload_background_settings():
         BACKGROUND_SETTINGS = BotSettings.get_all_area_settings('background')
         BackgroundCog.validate_backgorund_settings()
 
-    #staticmethod
+    @staticmethod
     def validate_background_settings():
         required_tokens = ['AWARD_PROCESS_DELAY', 'AWARD_PROCESS_INTERVAL', 'PROCESS_AWARDS']
         for token in required_tokens:
