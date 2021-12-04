@@ -46,12 +46,12 @@ class Award:
 
         now = datetime.now()
         if not past_hours is None:
-            time_delta = datetime.timedelta(hours=past_hours)
+            time_delta = timedelta(hours=past_hours)
             time_boundary = now - time_delta
         else:
             time_boundary = 0
 
-        aql_query = "FOR a IN awards FILTER a.author == '{0}' AND award.queued_at > {1}".format(user, time_boundary)
+        aql_query = "FOR a IN awards FILTER a.author == '{0}' AND a.queued_at > '{1}' RETURN a".format(user, time_boundary)
         aql_results = db.db.AQLQuery(aql_query, rawResults=True)
         return len(aql_results)
 
