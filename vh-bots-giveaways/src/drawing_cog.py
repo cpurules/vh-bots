@@ -329,14 +329,17 @@ class DrawingCog(commands.Cog):
             while len(winners) > 0 and winners_in_group < max_per_group:
                 winner = winners.pop()
                 print('Assigning role {0} to {1}'.format(role_name, winner.name))
-                await winner.add_roles(channel_role, reason="Giveaway winner", atomic=True)
-                await asyncio.sleep(1)
-                winner = guild.get_member(winner.id)
-                if channel_role in winner.roles:
-                    await logging_channel.send(content='Gave {0} the {1} role'.format(winner.mention, channel_role.name))
-                else:
-                    await logging_channel.send(content='Failed to give {0} the {1} role'.format(winner.mention, channel_role.name))
-                winners_in_group += 1
+                try:
+                    await winner.add_roles(channel_role, reason="Giveaway winner", atomic=True)
+                    await asyncio.sleep(1)
+                    winner = guild.get_member(winner.id)
+                    if channel_role in winner.roles:
+                        await logging_channel.send(content='Gave {0} the {1} role'.format(winner.mention, channel_role.name))
+                    else:
+                        await logging_channel.send(content='Failed to give {0} the {1} role'.format(winner.mention, channel_role.name))
+                    winners_in_group += 1
+                except Exception as e:
+                    print("An error occurred assigning winner {0}:`n{1}".format(winner.id, e))
             
             channel_name = 'winners-{0}-{1}'.format(giveaway_id, i + 1)
             
