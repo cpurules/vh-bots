@@ -62,7 +62,7 @@ class Redemption:
         except (KeyError, DocumentNotFoundError):
             return None
     
-    # staticmethod
+    @staticmethod
     def remove_redemption_by_key(redemption_key: str):
         db = Database()
 

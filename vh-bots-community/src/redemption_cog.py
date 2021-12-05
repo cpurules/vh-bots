@@ -38,7 +38,7 @@ class RedemptionCog(commands.Cog):
         
         for i in reward_indices:
             reward = rewards[i]
-            reward_lines.append("[{0:0>4d}]({1})".format(int(reward._key), str(reward)))
+            reward_lines.append("#{0:0>4d} ({1})".format(int(reward._key), str(reward)))
         
         return reward_lines
     
@@ -146,7 +146,7 @@ class RedemptionCog(commands.Cog):
         if len(rewards) == 0:
             embed_lines.append("Looks like there aren't any rewards available right now!")
         else:
-            embed_lines.append("```md")
+            embed_lines.append("```css")
             embed_lines.extend(RedemptionCog.generate_reward_lines(rewards, per_page=15))
             embed_lines.append("```")
 
