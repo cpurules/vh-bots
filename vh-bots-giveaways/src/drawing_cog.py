@@ -312,7 +312,7 @@ class DrawingCog(commands.Cog):
         channel_perms_template = {
             guild.default_role: discord.PermissionOverwrite(read_messages=False, add_reactions=False),
             guild.me: discord.PermissionOverwrite(read_messages=True, send_messages=True, mention_everyone=True, external_emojis=True, manage_messages=True, add_reactions=True),
-            events_team_role: discord.PermissionOverwrite(manage_channels=True, manage_permissions=True, read_messages=True, send_messages=True, mention_everyone=True, manage_messages=True)
+            events_team_role: discord.PermissionOverwrite(manage_channels=True, manage_permissions=True, read_messages=True, send_messages=True, mention_everyone=True, manage_messages=True, add_reactions=True)
         }
 
         channel_role_perms = discord.PermissionOverwrite(read_messages=True, send_messages=True, read_message_history=True, add_reactions=False, external_emojis=False)
