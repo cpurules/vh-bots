@@ -33,7 +33,7 @@ async def help(ctx, flag: str=None):
     commands = [
         {
             'name': "General",
-            'public_commands': ['c.help', 'c.join'],
+            'public_commands': ['c.help', 'c.join', 'c.preferences'],
             'admin_commands': ['c.reload', 'c.settings']
         },
         {
@@ -72,6 +72,9 @@ async def help(ctx, flag: str=None):
                 help_text_lines.append("Creates a profile for your Discord account in the Community Bot.");
                 help_text_lines.append("You only need to run this command one time!")
                 help_text_lines.append("Usage: `c.join`")
+            elif flag == 'c.preferences':
+                help_text_lines.append("Displays your Community Bot preferences.")
+                help_text_lines.append("Usage: `c.preferences [edit]`")
             elif flag == 'c.reload':
                 help_text_lines.append("**Admin Only**")
                 help_text_lines.append("Reloads the Community Bot components.")
