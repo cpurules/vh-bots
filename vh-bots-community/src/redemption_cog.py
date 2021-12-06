@@ -15,7 +15,7 @@ class RedemptionCog(commands.Cog):
         self.bot = bot
         CogHelpers.set_bot(bot)
 
-    #staticmethod
+    @staticmethod
     def generate_reward_lines(rewards, per_page: int=0, current_page: int=0):
         if len(rewards) == 0:
             raise ValueError('List of rewards is empty', rewards)
@@ -38,7 +38,7 @@ class RedemptionCog(commands.Cog):
         
         for i in reward_indices:
             reward = rewards[i]
-            reward_lines.append("[{0:0>4d}]({1})".format(int(reward._key), str(reward)))
+            reward_lines.append("#{0:0>4d} ({1})".format(int(reward._key), str(reward)))
         
         return reward_lines
     
@@ -60,7 +60,10 @@ class RedemptionCog(commands.Cog):
     @commands.dm_only()
     async def redeem_reward(self, ctx, reward_id: str=None):
         has_profile = await CogHelpers.require_bot_membership(ctx)
-        if not has_profile or reward_id is None:
+        if not has_profile:
+            return
+        elif reward_id is None:
+            await ctx.invoke(self.bot.get_command('c.help'), flag='c.redeem')
             return
         
         member = GuildMember.get_member_by_id(ctx.author.id)
@@ -143,7 +146,7 @@ class RedemptionCog(commands.Cog):
         if len(rewards) == 0:
             embed_lines.append("Looks like there aren't any rewards available right now!")
         else:
-            embed_lines.append("```md")
+            embed_lines.append("```css")
             embed_lines.extend(RedemptionCog.generate_reward_lines(rewards, per_page=15))
             embed_lines.append("```")
 
@@ -266,6 +269,10 @@ class RedemptionCog(commands.Cog):
     @commands.check(CogHelpers.check_is_channel_or_dm)
     async def set_reward(self, ctx, reward_id: int, field: str=None, *, value: str=None):
         # This needs to be cleaned up at some point somehow
+        if reward_id is None:
+            await ctx.invoke(self.bot.get_command('c.help'), flag='c.setreward')
+            return
+
         embed_lines = []
         
         reward_id = int(reward_id)

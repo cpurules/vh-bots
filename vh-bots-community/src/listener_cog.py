@@ -21,12 +21,12 @@ class ListenerCog(commands.Cog):
 
         ListenerCog.validate_listener_settings()
     
-    #staticmethod
+    @staticmethod
     def reload_listener_settings():
         LISTENER_SETTINGS = BotSettings.get_all_area_settings('activity')
         ListenerCog.validate_listener_settings()
 
-    #staticmethod
+    @staticmethod
     def validate_listener_settings():
         required_tokens = ['BASE_AWARD_CHANCE', 'AWARD_ENABLED_CHANNELS']
         for token in required_tokens:
@@ -52,10 +52,13 @@ class ListenerCog(commands.Cog):
         listening_channel = listening_channel[0]
         
         def calculate_award_chance():
-            return LISTENER_SETTINGS['BASE_AWARD_CHANCE'].value * listening_channel.frequency_multiplier
+            # multiply chance by 1.4^-n where n = number of awards the user has received in the past day
+            repeat_multiplier = 1.4 ** (-1 * Award.count_user_awards(msg.author.id, past_hours=24))
+            return (LISTENER_SETTINGS['BASE_AWARD_CHANCE'].value * listening_channel.frequency_multiplier) * repeat_multiplier
         
         def calculate_points():
-            return random.randrange(0, 200 * listening_channel.point_multiplier) + 1
+            range_min, range_max = LISTENER_SETTINGS['BASE_AWARD_RANGE'].value
+            return random.randrange(range_min * listening_channel.point_multiplier,  range_max * listening_channel.point_multiplier) + 1
         
         if random.random() < calculate_award_chance():
             # Queue a point reward for the person

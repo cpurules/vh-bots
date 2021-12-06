@@ -8,7 +8,7 @@ class AwardChannel:
         self.frequency_multiplier = frequency_multiplier
         self.point_multiplier = point_multiplier
     
-    #staticmethod
+    @staticmethod
     def create_from_db_obj(db_obj):
         return AwardChannel(int(db_obj['id']), float(db_obj['frequency_multiplier']), float(db_obj['point_multiplier']))
     

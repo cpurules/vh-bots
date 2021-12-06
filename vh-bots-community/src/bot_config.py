@@ -36,7 +36,7 @@ class BotConfig:
         except KeyError as e:
             raise KeyError('{0} missing from {1}'.format(str(e), config_file))
 
-    #staticmethod
+    @staticmethod
     def to_list(obj):
         if isinstance(obj, list):
             return obj

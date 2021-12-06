@@ -30,6 +30,11 @@ try {
 catch {}
 
 try {
+  db._create('member_preferences');
+}
+catch {}
+
+try {
   db._create('redemptions', { keyOptions: { type: 'autoincrement' }});
 }
 catch {}
