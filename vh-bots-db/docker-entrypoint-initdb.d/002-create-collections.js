@@ -30,7 +30,7 @@ try {
 catch {}
 
 try {
-  db._create('member_preferences');
+  db._create('member-preferences');
 }
 catch {}
 
