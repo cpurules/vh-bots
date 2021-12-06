@@ -35,7 +35,16 @@ class ListenerCog(commands.Cog):
     
     @commands.Cog.listener()
     async def on_message(self, msg):
+        # Exclude bot messages and DM messages
         if msg.author.bot or isinstance(msg.channel, discord.DMChannel):
+            return
+        
+        # Exclude messages for non-bot registered users
+        if GuildMember.get_member_by_id(msg.author.id) is None:
+            return
+        
+        # Exclude posts that start with LF - not something we want to reward
+        if msg.content.upper().startswith("LF ") or msg.content.upper().startswith("LF:"):
             return
         
         this_channel_id = msg.channel.id
@@ -43,10 +52,6 @@ class ListenerCog(commands.Cog):
         listening_channel = [x for x in listening_channels if x.id == this_channel_id]
 
         if not this_channel_id in [x.id for x in listening_channels] or len(listening_channel) == 0:
-            return
-        if GuildMember.get_member_by_id(msg.author.id) is None:
-            return
-        if msg.content.startswith("LF ") or msg.content.startswith("LF:"):
             return
         
         listening_channel = listening_channel[0]
