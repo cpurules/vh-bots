@@ -51,7 +51,7 @@ services:
       context: ./vh-bots-villagers/
       args:
         - VILLAGER_BOT_TOKEN=
-        - VILLAGER_CONFIG_FILE=config.json
+        - VILLAGER_CONFIG_FILE=botconfig.json
     depends_on:
       - "vh-db"
     image: vh-bots/villagers
