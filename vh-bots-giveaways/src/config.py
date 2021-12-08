@@ -8,6 +8,7 @@ class BotConfig:
     MAX_WINNERS_PER_POST = 20
     PITFALL_EMOJI = 0
     FAUNA_WAVE_EMOJI = 0
+    ROSIE_LOVE_EMOJI = 0
     EVENTS_TEAM_ROLE = 0
     GIVEAWAY_CATEGORY = 0
     EVENT_CATEGORY = 0
@@ -49,6 +50,10 @@ class BotConfig:
         self.FAUNA_WAVE_EMOJI = int(config_dict['FAUNA_WAVE_EMOJI'])
         if self.FAUNA_WAVE_EMOJI <= 0:
             raise ValueError("You must specify FAUNA_WAVE_EMOJI in " + file)
+        
+        self.ROSIE_LOVE_EMOJI = int(config_dict['ROSIE_LOVE_EMOJI'])
+        if self.ROSIE_LOVE_EMOJI <= 0:
+            raise ValueError("You must specify ROSIE_LOVE_EMOJI in " + file)
         
         self.EVENTS_TEAM_ROLE = int(config_dict['EVENTS_TEAM_ROLE'])
         if self.EVENTS_TEAM_ROLE <= 0:
