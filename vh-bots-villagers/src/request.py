@@ -95,3 +95,6 @@ class Request:
         db = Database()
 
         return db.requests.fetchDocument(str(self._key))
+    
+    def cancel(self):
+        self.get_request_db_obj().delete()

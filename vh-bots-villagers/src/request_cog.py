@@ -88,6 +88,21 @@ Repeated failures to collect your villager may result in being blocked from usin
 **Please note that setting your status to Available indicates that you are currently available and have an open plot!**
 """
         await ctx.send(content=change_content.format(villager_name))
+    
+    @commands.command(name='leave')
+    @commands.dm_only()
+    async def cancel_request(self, ctx):
+        request = Request.get_current_user_request(ctx.author.id)
+        if request is None:
+            await ctx.send(content='You don\'t have an open villager request.')
+            return
+        
+        request.cancel()
+        leave_content = """
+**You've left the queue!**
+You can re-renter at any time; just DM me `!start`!
+"""
+        await ctx.send(content=leave_content)
 
 
 def setup(bot):
