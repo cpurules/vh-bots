@@ -13,8 +13,12 @@ class AdminCog(commands.Cog):
     
     @commands.command(name='announce')
     @commands.has_any_role(*CONFIG.COMMAND_ENABLED_ROLES)
-    async def announce_giveaway(self, ctx):
-        pass
+    async def announce_giveaway(self, ctx, prize: str=None):
+        if prize is None or prize == '':
+            return
+        
+        channel = discord.utils.get(ctx.guild.text_channels, id=CONFIG.GIVEAWAY_CHAT_CHANNEL)
+        await channel.send(content=generate_giveaway_internal_announce(prize))
     
     @commands.command(name='giveall')
     @commands.has_any_role(*CONFIG.COMMAND_ENABLED_ROLES)
