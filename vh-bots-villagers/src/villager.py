@@ -3,13 +3,15 @@ import os.path
 import requests
 
 class Villager:
+    villager_file = 'villagers.json'
+
     def __init__(self, internal_id: str, name_en: str):
         self.internal_id = internal_id
         self.name_en = name_en
     
     @staticmethod
     def create_json_if_not_exists():
-        if not os.path.exists('villagers.json'):
+        if not os.path.exists(Villager.villager_file):
             # download from NHSE github
             response = requests.get('https://raw.githubusercontent.com/kwsch/NHSE/master/NHSE.Core/Resources/text/en/text_villager_en.txt')
             if not response.status_code == 200:
@@ -20,7 +22,7 @@ class Villager:
                 internal_id, villager_name = line.split('\t')
                 villagers[internal_id] = villager_name
             
-            with open('villagers.json', 'w') as f:
+            with open(Villager.villager_file, 'w') as f:
                 f.write(json.dumps(villagers))
 
     @staticmethod
@@ -37,7 +39,7 @@ class Villager:
         else:
             name_en = name.title()
         
-        with open('villagers.json', 'r') as f:
+        with open(Villager.villager_file, 'r') as f:
             all_villager_data = json.load(f)
         
         for internal_id in all_villager_data:
@@ -51,7 +53,7 @@ class Villager:
     def get_by_id(internal_id: str):
         Villager.create_json_if_not_exists()
 
-        with open('villagers.json', 'r') as f:
+        with open(Villager.villager_file, 'r') as f:
             all_villager_data = json.load(f)
 
         try:
