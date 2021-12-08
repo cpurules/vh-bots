@@ -14,8 +14,14 @@ class AdminCog(commands.Cog):
     
     @commands.command(name='announce')
     @commands.has_any_role(*CONFIG.COMMAND_ENABLED_ROLES)
-    async def announce_giveaway(self, ctx, prize: str=None):
-        if prize is None or prize == '':
+    async def announce_giveaway(self, ctx, *, prize: str=None):
+        if prize is None: or prize.strip() == '':
+            await ctx.send('You have to specify a prize.')
+            return
+        
+        prize = ''.join(prize).strip()
+        if prize == '':
+            await ctx.send('You have to specify a prize.')
             return
         
         team_reacts = [
