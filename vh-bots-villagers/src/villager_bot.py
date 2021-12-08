@@ -19,11 +19,6 @@ if __name__ == '__main__':
     for extension in initial_extensions:
         bot.load_extension(extension)
 
-@bot.command(name='help')
-@commands.dm_only()
-async def help(ctx, flag: str=None):
-    pass
-
 @bot.command(name='reload')
 @commands.check(CogHelpers.check_is_admin)
 async def reload(ctx):
