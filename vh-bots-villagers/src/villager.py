@@ -4,7 +4,7 @@ import re
 import requests
 
 class Villager:
-    SANRIO_VILLAGERS = ['Marty', 'Toby', 'Chelsea', 'Chai', 'Rilla', 'Etoile']
+    SANRIO_VILLAGER_NAMES = ['Marty', 'Toby', 'Chelsea', 'Chai', 'Rilla', 'Etoile']
 
     villager_file = 'villagers.json'
     villager_id_regex = r'^[a-z]{3}\d{2}$'
@@ -73,3 +73,7 @@ class Villager:
             return Villager(internal_id, all_villager_data[internal_id])
         except KeyError:
             return None
+    
+    @staticmethod
+    def get_sanrio_villagers():
+        return [Villager.get_by_name(x) for x in Villager.SANRIO_VILLAGER_NAMES]
