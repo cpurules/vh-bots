@@ -23,3 +23,6 @@ For example, to request Plucky, type `!villager Plucky`
 https://animalcrossing.fandom.com/wiki/Villager_list_(New_Horizons)
 """
         await ctx.send(content=content)
+
+def setup(bot):
+    bot.add_cog(RequestCog(bot))
