@@ -3,3 +3,4 @@ pyarango
 pytest
 pytest-azurepipelines
 pytest-cov
+requests
