@@ -11,6 +11,11 @@ class AdminCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
     
+    @commands.command(name='announce')
+    @commands.has_any_role(*CONFIG.COMMAND_ENABLED_ROLES)
+    async def announce_giveaway(self, ctx):
+        pass
+    
     @commands.command(name='giveall')
     @commands.has_any_role(*CONFIG.COMMAND_ENABLED_ROLES)
     async def give_all_role(self, ctx, role: discord.Role=None):
@@ -301,6 +306,37 @@ This will be your supply team for the upcoming giveaway.  Check out {4} for more
 
     return content.format(supplier_mentions, courier_role_mentions, team_name, str(fauna_emoji),
                           giveaway_chat_channel.mention, str(pitfall_emoji), events_team_role.mention)
+
+def generate_giveaway_internal_announce(prize: str):
+    team_reacts = [
+        "\N{LARGE BLUE DIAMOND}",
+        "\N{LARGE ORANGE DIAMOND}",
+        "\N{YELLOW HEART}",
+        "\N{HEAVY BLACK HEART}",
+        "\N{LARGE GREEN CIRCLE}",
+        "\N{LARGE PURPLE CIRCLE}",
+        "\N{GLOWING STAR}",
+        "\N{CROSS MARK}"
+    ]
+    content = """
+Hi {0} & {1} & {2}!
+
+Tomorrow's giveaway will be for {3}
+
+**__Couriers__** - Please react {4} for picking up this evening, or {5} for tomorrow.
+**__Couriers in Training__** - Please react {6} for picking up this evening, or {7} for tomorrow.
+**__Giveaway Suppliers__** - Please react {8} for supplying this evening, or {9} for tomorrow.
+__Please react {10} if you don't need to pick up / are able to supply for yourself!__
+
+Please react {11} if you will not be availablet o support this giveaway.
+
+If you do not react at all, we will flag this!  It's okay to not participate in every giveaway, but we do need a response {12}
+
+**Note:** Our team will set up supplier/courier teams once we have an idea of how many people are participating!
+"""
+
+    return content.format("mention1", "mention2", "mention3", prize, *team_reacts, "rosie")
+
 
 def setup(bot):
     bot.add_cog(AdminCog(bot))
