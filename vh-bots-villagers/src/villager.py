@@ -22,11 +22,14 @@ class Villager:
                 raise AttributeError('Missing villagers.json and could not create')
             
             villagers = {}
-            for line in response.split('\n'):
+            for line in response.text.split('\n'):
+                if not '\t' in line:
+                    continue
+
                 internal_id, villager_name = line.split('\t')
                 if re.match(Villager.villager_id_regex, internal_id) is None:
                     continue
-                
+
                 villagers[internal_id] = villager_name
             
             with open(Villager.villager_file, 'w') as f:
@@ -67,6 +70,6 @@ class Villager:
             return None
 
         try:
-            return all_villager_data[internal_id]
+            return Villager(internal_id, all_villager_data[internal_id])
         except KeyError:
             return None
