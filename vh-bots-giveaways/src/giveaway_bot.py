@@ -55,6 +55,7 @@ about a specific command, type !commands **command** (e.g. !commands drawing)
 !help/!commands        Shows this help page
 !help/!commands <cmd>  Shows help for the specified command
 
+!announce              Posts announcement to giveaway team in giveaway chat channel
 !channel               Creates blank event or giveaway channels
 !createteam            Creates blank giveaway team channels
 !giveaway              Starts a standard giveaway
@@ -77,7 +78,7 @@ about a specific command, type !commands **command** (e.g. !commands drawing)
 """
         await ctx.send(content=content)
     else:
-        available_commands = ['help', 'commands', 'channel', 'giveaway', 'drawing', 'drawing2', 'report', 'citreport',
+        available_commands = ['help', 'commands', 'announce', 'channel', 'giveaway', 'drawing', 'drawing2', 'report', 'citreport',
                               'remind', 'cleanroles', 'cleanchannels', 'cleanall', 'getspecial', 'setspecial',
                               'clearspecial', 'getcitchannel', 'togglecitchannel', 'createteam', 'lock', 'unlock',
                               'giveall', 'cleanteams']
@@ -95,6 +96,12 @@ about a specific command, type !commands **command** (e.g. !commands drawing)
 ```
 command:   optional; the command to get help for
 ```
+"""
+
+        if command == 'announce':
+            content = """
+**!announce [prize]** - Posts an announcement to the giveaway team chat channel, with pings for suppliers, couriers, and CITs.
+Prize can contain Villager Haven emojis, formatting, etc.
 """
 
         if command == 'channel':
