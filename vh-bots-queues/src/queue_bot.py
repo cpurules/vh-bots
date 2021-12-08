@@ -84,6 +84,7 @@ These commands, *except* q.kick, can only be used in DMs.
 
 ```
 q.create        Create a new queue.  Queues are locked by default
+q.clean         Cleans the added/removed messages from your queue channel
 q.close         Closes your queue.  This removes all queue members, unless it is currently their turn
 q.dodo          Update the Dodo code for your queue
 q.end           End your queue.  This deletes the queue and can only be done when the queue is empty

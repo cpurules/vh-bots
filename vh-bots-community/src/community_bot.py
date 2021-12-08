@@ -15,7 +15,7 @@ bot.remove_command('help') # Will replace this with our custom help command
 
 CONFIG = bot_config.BotConfig(bot=bot)
 
-initial_extensions = ['redemption_cog', 'member_cog', 'listener_cog', 'background_cog', 'general_cog', 'settings_cog']
+initial_extensions = ['redemption_cog', 'member_cog', 'listener_cog', 'background_cog', 'general_cog', 'settings_cog', 'preferences_cog']
 if __name__ == '__main__':
     for extension in initial_extensions:
         bot.load_extension(extension)
@@ -33,7 +33,7 @@ async def help(ctx, flag: str=None):
     commands = [
         {
             'name': "General",
-            'public_commands': ['c.help', 'c.join'],
+            'public_commands': ['c.help', 'c.join', 'c.preferences'],
             'admin_commands': ['c.reload', 'c.settings']
         },
         {
@@ -64,7 +64,61 @@ async def help(ctx, flag: str=None):
         if not flag in command_list:
             help_text_lines.append("Unknown command: `{0}`".format(flag))
         else:
-            help_text_lines.append("`{0}` - test".format(flag))
+            help_text_lines.append("`{0}`".format(flag))
+            if flag == 'c.help':
+                help_text_lines.append("Displays usage information for the bot, or for a specific command")
+                help_text_lines.append("Usage: `c.help [command]`")
+            elif flag == 'c.join':
+                help_text_lines.append("Creates a profile for your Discord account in the Community Bot.");
+                help_text_lines.append("You only need to run this command one time!")
+                help_text_lines.append("Usage: `c.join`")
+            elif flag == 'c.preferences':
+                help_text_lines.append("Displays your Community Bot preferences.")
+                help_text_lines.append("Usage: `c.preferences [edit]`")
+            elif flag == 'c.reload':
+                help_text_lines.append("**Admin Only**")
+                help_text_lines.append("Reloads the Community Bot components.")
+                help_text_lines.append("Usage: `c.reload`")
+            elif flag == 'c.settings':
+                help_text_lines.append("**Admin Only**")
+                help_text_lines.append("Manages settings and features for the Community Bot.")
+                help_text_lines.append("Usage: `c.settings [category] [setting] [action]`")
+            elif flag == 'c.rewards':
+                help_text_lines.append("View the rewards available for point redemption.")
+                help_text_lines.append("Usage: `c.rewards`")
+                if is_admin:
+                    help_text_lines.append("Admin Usage: `c.rewards [all | off]`")
+            elif flag == 'c.redeem':
+                help_text_lines.append("Redeem Community Bot points for a reward.")
+                help_text_lines.append("Usage: `c.redeem <reward ID>`")
+            elif flag == 'c.balance':
+                help_text_lines.append("View your Community Bot points balance")
+                help_text_lines.append("Usage: `c.balance`")
+            elif flag == 'c.addreward':
+                help_text_lines.append("**Admin Only**")
+                help_text_lines.append("Add a new reward for point redemption.")
+                help_text_lines.append("Usage: `c.addreward`")
+            elif flag == 'c.setreward':
+                help_text_lines.append("**Admin Only**")
+                help_text_lines.append("Update an existing point redemption reward.")
+                help_text_lines.append("Usage: `c.setreward <reward ID> [field] [new value]`")
+            elif flag == 'c.award':
+                help_text_lines.append("**Admin Only**")
+                help_text_lines.append("Award (or remove) Community Bot points to (or from) the specified user.")
+                help_text_lines.append("Usage: `c.award <user ID> <points>`")
+                help_text_lines.append("Note: points can be positive (give) or negative (take)")
+            elif flag == 'c.lookup':
+                help_text_lines.append("**Admin Only**")
+                help_text_lines.append("Look up the Community Bot profile for the specified user.")
+                help_text_lines.append("Usage: `c.lookup <user ID>`")
+            elif flag == 'c.setbalance':
+                help_text_lines.append("**Admin Only**")
+                help_text_lines.append("Set the specified user's Community Bot point balance.")
+                help_text_lines.append("Usage: `c.setbalance <user ID> <points>`")
+            elif flag == 'c.pendingawards':
+                help_text_lines.append("**Admin Only**")
+                help_text_lines.append("View the list of all pending points that have not been awarded yet")
+                help_text_lines.append("Usage: `c.pendingawards`")
         
         help_embed = help_embed.setDescriptionFromLines(help_text_lines)
     else:
@@ -104,7 +158,7 @@ async def reload(ctx):
     for extension in initial_extensions:
         bot.reload_extension(extension)
 
-    await ctx.message.author.send(content='Reloaded the queue bot!')
+    await ctx.message.author.send(content='Reloaded the Community Bot!')
 
 @bot.event
 async def on_ready():

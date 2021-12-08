@@ -8,7 +8,7 @@ class GuildMember:
         self._key = int(member_id)
         self.balance = int(member_balance)
     
-    #staticmethod
+    @staticmethod
     def create_member(member_id: int, member_balance: int=500):
         db = Database()
         members = db.members
@@ -20,11 +20,11 @@ class GuildMember:
 
         return GuildMember(member_id, member_balance)
     
-    #staticmethod
+    @staticmethod
     def create_member_from_db_obj(db_obj):
         return GuildMember(db_obj['_key'], db_obj['balance'])
     
-    #staticmethod
+    @staticmethod
     def get_member_by_id(member_id: int):
         db = Database()
 

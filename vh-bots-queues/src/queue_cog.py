@@ -169,6 +169,33 @@ class QueueCog(commands.Cog):
                 return True
         
         return False
+    
+    @commands.command(name='clean')
+    @commands.check(can_create_queue)
+    async def clean_join_leave_logs(self, ctx):
+        channel_id = ctx.channel.id
+        queue = VHQueue.get_queue_by_channel_id(channel_id)
+
+        if queue is None:
+            await ctx.author.send(content='You tried to use `q.clean` in a non-queue channel!')
+            await ctx.message.delete()
+            return
+        if not queue.owner_id == ctx.author.id:
+            await ctx.author.send(content='You tried to use `q.clean` in a queue you do not own!')
+            await ctx.message.delete()
+            return
+
+        to_delete = []
+        async for queue_msg in ctx.channel.history(limit=None):
+            if queue_msg.author.id == self.bot.user.id and queue_msg.content.endswith('the queue channel.'):
+                to_delete.append(queue_msg)
+        
+        for delete_msg in to_delete:
+            await delete_msg.delete()
+            await asyncio.sleep(0.1)
+        
+        await ctx.message.delete()        
+        
 
     @commands.command(name='close')
     @commands.check(can_create_queue)

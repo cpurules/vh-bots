@@ -35,6 +35,11 @@ try {
 catch {}
 
 try {
+  db._create('member-preferences');
+}
+catch {}
+
+try {
   db._create('redemptions', { keyOptions: { type: 'autoincrement' }});
 }
 catch {}

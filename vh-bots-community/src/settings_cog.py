@@ -310,6 +310,105 @@ class SettingsCog(commands.Cog):
                             setting.save(overwrite=True)
                             preview_embed.setDescription("All set!  The embed RGB colour has been set to `{0}, {1}, {2}`".format(*setting.value))
                             preview_message = await ctx.send(embed=preview_embed.build())
+    
+    async def base_award_range_handler(self, ctx, setting: BotSetting):
+        editor_embed = EmbedBuilder().setTitle("Update Setting - BASE_AWARD_RANGE") \
+                                        .setColour(BotSettings.get_setting('admin', 'EMBED_COLOUR').value)
+        
+        timed_out = False
+        reply_value = None
+
+        reacts = []
+
+        if reply_value is None:
+            embed_lines = ["The current base point award range (inclusive) is [{0}, {1}].\n".format(*setting.value),
+                            "If you want to change the base award range, click the \N{PENCIL} react"]
+            reacts = ['\N{PENCIL}']
+            editor_embed.setDescriptionFromLines(embed_lines)
+            editor_message = await ctx.send(embed=editor_embed.build())
+            for r in reacts:
+                await editor_message.add_reaction(r)
+            
+            def validate_react_1(react, user):
+                return react.emoji in reacts and react.message.id == editor_message.id and user.id == ctx.author.id
+
+            try:
+                react, user = await self.bot.wait_for('reaction_add', check=validate_react_1, timeout=30)
+            except asyncio.TimeoutError:
+                timed_out = True
+            else:
+                embed_lines = ["Enter the range you wish to set the base award amount to.  Valid formats:\n",
+                                "`[min] [max] - e.g. {0} {1}`".format(*setting.value),
+                                "`[min],[max] - e.g. {0},{1}`".format(*setting.value),
+                                "`[min], [max] - e.g. {0}, {1}`".format(*setting.value),
+                                "`[[min],[max]] - e.g. [{0},{1}]`".format(*setting.value),
+                                "`[[min], [max]] - e.g. [{0}, {1}]`".format(*setting.value)]
+
+                reply_embed = EmbedBuilder.fromEmbed(editor_embed) \
+                                            .setDescriptionFromLines(embed_lines)
+                
+                reply_message = await ctx.send(embed=reply_embed.build())
+
+                def validate_msg(msg):
+                    return msg.channel.id == reply_message.channel.id and msg.author.id == ctx.author.id
+                
+                try:
+                    reply = await self.bot.wait_for('message', check=validate_msg, timeout=30)
+                except asyncio.TimeoutError:
+                    reply_embed.setDescription("You took too long to reply!  You can start over using `c.settings admin EMBED_COLOUR edit`")
+                    await reply_message.edit(embed=reply_embed.build())
+                    return
+                else:
+                    reply = reply.content.strip()
+                    # maybe a positive/negative lookahead/behind could work but I had problems
+                    # ^(\[(?=.*\]$))?(\d+),? ?(\d+)(\](?<=^\[))?$
+                    if reply.startswith("[") and reply.endswith("]"):
+                        range_pattern = r"^\[(\d+), ?(\d+)\]$"
+                    else:
+                        range_pattern = r"^(\d+),? ?(\d+)$"
+                    reply_match = re.match(range_pattern, reply)
+                    valid_range = False
+                    if reply_match is not None:
+                        reply_match = CogHelpers.intmap(reply_match.groups())
+                        if 0 <= reply_match[0] and reply_match[0] <= reply_match[1]:
+                            valid_range = True
+
+                    #TODO this needs retry logic
+                    if not valid_range:
+                        reply_embed.setDescription("Sorry, `{0}` does not look like a valid RGB value!\n".format(reply)
+                                                    + "Remember that 0 <= [min] <= [max]!")
+                        await reply_message.edit(embed=reply_embed.build())
+                        return
+                    
+                    embed_lines = ["You have entered the following range: `[{0}, {1}]`\n".format(*reply_match),
+                                    "Do you wish to update BASE_AWARD_RANGE to this value?"]
+                    
+                    preview_embed = EmbedBuilder.fromEmbed(reply_embed) \
+                                                .setDescriptionFromLines(embed_lines)
+                    preview_message = await ctx.send(embed=preview_embed.build())
+                    
+                    reacts = ['\N{NEGATIVE SQUARED CROSS MARK}','\N{WHITE HEAVY CHECK MARK}']
+                    for r in reacts:
+                        await preview_message.add_reaction(r)
+                    
+                    def validate_react_2(react, user):
+                        return react.emoji in reacts and react.message.id == preview_message.id and user.id == ctx.author.id
+                    
+                    try:
+                        react, user = await self.bot.wait_for('reaction_add', check=validate_react_2, timeout=30)
+                    except asyncio.TimeoutError:
+                        preview_embed.setDescription("You took too long to reply!  You can start over using `c.settings activity BASE_AWARD_RANGE edit`")
+                        await preview_message.edit(embed=preview_embed.build())
+                        return
+                    else:
+                        if react.emoji == '\N{NEGATIVE SQUARED CROSS MARK}':
+                            preview_embed.setDescription("OK!  No action taken, the setting has been left alone")
+                            await preview_message.edit(embed = preview_embed.build())
+                        elif react.emoji == '\N{WHITE HEAVY CHECK MARK}':
+                            setting.value = reply_match
+                            setting.save(overwrite=True)
+                            preview_embed.setDescription("All set!  The BASE_AWARD_RANGE setting has been updated to `[{0}, {1}]`".format(*setting.value))
+                            preview_message = await ctx.send(embed=preview_embed.build())
 
     async def list_menu_handler(self, ctx, setting: BotSetting):
         editor_embed = EmbedBuilder().setTitle("Update List Setting") \
@@ -474,7 +573,8 @@ class SettingsCog(commands.Cog):
                     'PROCESS_AWARDS': CogHelpers.parsebool
                 },
                 'activity': {
-                    'BASE_AWARD_CHANCE': float
+                    'BASE_AWARD_CHANCE': float,
+                    'BASE_AWARD_RANGE': float
                 }
             }
 
@@ -490,12 +590,14 @@ class SettingsCog(commands.Cog):
             
             await ctx.send(embed=edit_embed.build())
         elif action == "edit":
-            if setting.is_simple_list() and not setting.token in ['EMBED_COLOUR', 'AWARD_ENABLED_CHANNELS']:
+            if setting.is_simple_list() and not setting.token in ['EMBED_COLOUR', 'BASE_AWARD_RANGE', 'AWARD_ENABLED_CHANNELS']:
                 await self.list_menu_handler(ctx, setting)
             else:
                 # launch per-command handlers
                 if setting.token == 'EMBED_COLOUR':
                     await self.embed_colour_handler(ctx, setting)
+                elif setting.token == 'BASE_AWARD_RANGE':
+                    await self.base_award_range_handler(ctx, setting)
                 elif setting.token == 'AWARD_ENABLED_CHANNELS':
                     await self.award_enabled_channels_handler(ctx, setting)
         

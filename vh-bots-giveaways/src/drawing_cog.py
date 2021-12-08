@@ -51,9 +51,7 @@ class DrawingCog(commands.Cog):
     
     @commands.Cog.listener()
     async def on_ready(self):
-        print('ACTIVE_DRAWINGS == 0 check')
-        if len(self.active_drawing_tasks) == 0: # only run this once
-            print('ACTIVE_DRAWINGS == 0')
+        if len(self.active_drawing_tasks) == 0: # only run this once (i.e. if we reload, don't do this)
             active_drawings = Drawing.get_all_active_drawings()
             for drawing in active_drawings:
                 self.active_drawing_tasks.append({drawing.message_id: asyncio.ensure_future(self.run_drawing(drawing))})
@@ -314,7 +312,7 @@ class DrawingCog(commands.Cog):
         channel_perms_template = {
             guild.default_role: discord.PermissionOverwrite(read_messages=False, add_reactions=False),
             guild.me: discord.PermissionOverwrite(read_messages=True, send_messages=True, mention_everyone=True, external_emojis=True, manage_messages=True, add_reactions=True),
-            events_team_role: discord.PermissionOverwrite(manage_channels=True, manage_permissions=True, read_messages=True, send_messages=True, mention_everyone=True, manage_messages=True)
+            events_team_role: discord.PermissionOverwrite(manage_channels=True, manage_permissions=True, read_messages=True, send_messages=True, mention_everyone=True, manage_messages=True, add_reactions=True)
         }
 
         channel_role_perms = discord.PermissionOverwrite(read_messages=True, send_messages=True, read_message_history=True, add_reactions=False, external_emojis=False)
@@ -329,14 +327,17 @@ class DrawingCog(commands.Cog):
             while len(winners) > 0 and winners_in_group < max_per_group:
                 winner = winners.pop()
                 print('Assigning role {0} to {1}'.format(role_name, winner.name))
-                await winner.add_roles(channel_role, reason="Giveaway winner", atomic=True)
-                await asyncio.sleep(1)
-                winner = guild.get_member(winner.id)
-                if channel_role in winner.roles:
-                    await logging_channel.send(content='Gave {0} the {1} role'.format(winner.mention, channel_role.name))
-                else:
-                    await logging_channel.send(content='Failed to give {0} the {1} role'.format(winner.mention, channel_role.name))
-                winners_in_group += 1
+                try:
+                    await winner.add_roles(channel_role, reason="Giveaway winner", atomic=True)
+                    await asyncio.sleep(1)
+                    winner = guild.get_member(winner.id)
+                    if channel_role in winner.roles:
+                        await logging_channel.send(content='Gave {0} the {1} role'.format(winner.mention, channel_role.name))
+                    else:
+                        await logging_channel.send(content='Failed to give {0} the {1} role'.format(winner.mention, channel_role.name))
+                    winners_in_group += 1
+                except Exception as e:
+                    print("An error occurred assigning winner {0}:`n{1}".format(winner.id, e))
             
             channel_name = 'winners-{0}-{1}'.format(giveaway_id, i + 1)
             

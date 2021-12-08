@@ -30,7 +30,7 @@ class Award:
 
         return msg.format("<@{0}>".format(self.author), msg_desc, time_formatted, self.points, trail)
 
-    #staticmethod
+    @staticmethod
     def create_award_from_db_obj(db_obj):
         def strptime(dt: str):
             return datetime.strptime(dt[:26], '%Y-%m-%d %H:%M:%S.%f')
@@ -40,7 +40,22 @@ class Award:
         return Award(db_obj['_key'], int(db_obj['message']), int(db_obj['author']), db_obj['link'], strptime(db_obj['queued_at']),
                         db_obj['points'], db_obj['deleted'], awarded_at=awarded_at)
     
-    #staticmethod
+    @staticmethod
+    def count_user_awards(user: int, past_hours: int=None):
+        db = Database()
+
+        now = datetime.now()
+        if not past_hours is None:
+            time_delta = timedelta(hours=past_hours)
+            time_boundary = now - time_delta
+        else:
+            time_boundary = 0
+
+        aql_query = "FOR a IN awards FILTER a.author == '{0}' AND a.queued_at > '{1}' RETURN a".format(user, time_boundary)
+        aql_results = db.db.AQLQuery(aql_query, rawResults=True)
+        return len(aql_results)
+
+    @staticmethod
     def get_queued_awards(before: datetime=None):
         db = Database()
         
@@ -58,7 +73,7 @@ class Award:
         
         return awards
 
-    #staticmethod
+    @staticmethod
     def queue_new_award(message: int, author: int, link: int, points: int):
         db = Database()
 

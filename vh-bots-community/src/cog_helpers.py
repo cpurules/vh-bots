@@ -20,12 +20,12 @@ class CogHelpers(commands.Cog):
     NEXT_EMOJI = '\N{BLACK RIGHT-POINTING TRIANGLE}'
     PREV_EMOJI = '\N{BLACK LEFT-POINTING TRIANGLE}'
 
-    #staticmethod
+    @staticmethod
     def set_bot(bot):
         CogHelpers.bot = bot
         CONFIG.bot = bot
     
-    #staticmethod
+    @staticmethod
     def check_is_admin(ctx):
         if CogHelpers.bot is None:
             raise RuntimeError("Must run set_bot before using this check")
@@ -40,14 +40,14 @@ class CogHelpers(commands.Cog):
             if role.id in admin_roles.value:
                 return True
     
-    #staticmethod
+    @staticmethod
     def check_is_channel_or_dm(ctx):
         channel = ctx.channel
         command_channels = BotSettings.get_setting('admin', 'COMMAND_CHANNELS', int)
         return (channel.id in command_channels.value or
                 isinstance(channel, discord.channel.DMChannel))
     
-    #staticmethod
+    @staticmethod
     def check_is_guild_member(ctx):
         if CogHelpers.bot is None:
             raise RuntimeError("Must run set_bot before using this check")
@@ -56,14 +56,14 @@ class CogHelpers(commands.Cog):
         member = CONFIG.get_guild_member(user_id)
         return not member is None
     
-    #staticmethod
+    @staticmethod
     def embed_membership_required():
         return EmbedBuilder().setTitle("Wait a sec...") \
                                 .setColour(BotSettings.get_setting('admin', 'EMBED_COLOUR').value) \
                                 .setDescription("You haven't joined the community bot yet!") \
                                 .appendToDescription("Use `c.join` to create a profile and get started!")
     
-    #staticmethod
+    @staticmethod
     def get_guild():
         if CogHelpers.bot is None:
             raise RuntimeError("Must run set_bot before using this method")
@@ -74,30 +74,30 @@ class CogHelpers(commands.Cog):
         
         return guild
     
-    #staticmethod
+    @staticmethod
     def get_guild_channel_by_id(channel):
         guild = CogHelpers.get_guild()
         return discord.utils.get(guild.channels, id=channel)
     
-    #staticmethod
+    @staticmethod
     def get_guild_member(member):
         guild = CogHelpers.get_guild()
         return guild.get_member(member)
     
-    #staticmethod
+    @staticmethod
     def get_user_full_name(user):
         if user is None:
             return None
         else:
             return "{0}#{1}".format(user.name, user.discriminator)
 
-    #staticmethod
+    @staticmethod
     def intmap(obj: list):
         if not isinstance(obj, list) and not isinstance(obj, tuple):
             raise ValueError('Only works on lists and tuples')
         return [int(x) for x in obj]
     
-    #staticmethod
+    @staticmethod
     def parsebool(b: str):
         trues = ['yes', 'y', 'true', 'on', 'enable', 'enabled']
         falses = ['no', 'n', 'false', 'off', 'disable', 'disabled']
@@ -105,14 +105,14 @@ class CogHelpers(commands.Cog):
             raise ValueError("Unable to parse boolean string", b)
         return b.lower() in trues
     
-    #staticmethod
+    @staticmethod
     async def require_bot_membership(ctx):
         if GuildMember.get_member_by_id(ctx.author.id) is None:
             await ctx.send(embed=CogHelpers.embed_membership_required().build())
             return False
         return True
     
-    #staticmethod
+    @staticmethod
     def validate_is_reply(msg, in_reply_to, expected_author: int=None):
         return (msg.channel.id == in_reply_to.channel.id and
                 not msg.author.bot and

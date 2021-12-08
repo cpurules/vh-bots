@@ -10,7 +10,7 @@ class EmbedBuilder:
         self.fields = None
         self.timestamp = None
     
-    #staticmethod
+    @staticmethod
     def fromEmbed(embed):
         eb = EmbedBuilder()
         eb.title = embed.title

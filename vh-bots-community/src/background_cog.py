@@ -24,12 +24,12 @@ class BackgroundCog(commands.Cog):
         BackgroundCog.validate_background_settings()
         self.process_award_queue.start()
 
-    #staticmethod
+    @staticmethod
     def reload_background_settings():
         BACKGROUND_SETTINGS = BotSettings.get_all_area_settings('background')
         BackgroundCog.validate_backgorund_settings()
 
-    #staticmethod
+    @staticmethod
     def validate_background_settings():
         required_tokens = ['AWARD_PROCESS_DELAY', 'AWARD_PROCESS_INTERVAL', 'PROCESS_AWARDS']
         for token in required_tokens:
@@ -44,6 +44,7 @@ class BackgroundCog(commands.Cog):
 
         queued_awards = Award.get_queued_awards()
         time_delta = timedelta(minutes=BACKGROUND_SETTINGS['AWARD_PROCESS_DELAY'].value)
+        awarded = []
         for queued_award in queued_awards:
             # Check for message deletion
             # Link format: https://discord.com/channels/guild/channel/message
@@ -65,10 +66,33 @@ class BackgroundCog(commands.Cog):
                 member = GuildMember.get_member_by_id(queued_award.author)
                 member.process_award(queued_award)
                 queued_award.award()
+                awarded.append(queued_award)
+        
+        await self.notify_awardees(awarded)
 
     @process_award_queue.before_loop
     async def before_process_award_queue(self):
         await self.bot.wait_until_ready()
+    
+    async def notify_awardees(self, awards):
+        member_totals = {}
+        for award in awards:
+            if award.author in member_totals:
+                member_totals[award.author] += award.points
+            else:
+                member_totals[award.author] = award.points
+        for member in member_totals:
+            member_total = member_totals[member]
+
+            notification_embed = EmbedBuilder().setTitle("You've been awarded points!") \
+                                                .setColour(BotSettings.get_setting('admin', 'EMBED_COLOUR').value) \
+                                                .appendToDescription("Hey <@{0}>!".format(member)) \
+                                                .appendToDescription("Thanks for being an active member of our community! :LollyGive:") \
+                                                .appendToDescription("You've been awarded {0} points.".format(member_total))
+            
+            user = await self.bot.fetch_user(member)
+            await user.send(embed=notification_embed.build())
+            await asyncio.sleep(1)
 
     @commands.command(name='pendingawards')
     @commands.check(CogHelpers.check_is_admin)

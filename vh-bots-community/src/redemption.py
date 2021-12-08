@@ -15,15 +15,15 @@ class Redemption:
             text = text + " (DISABLED)"
         return text
     
-    #staticmethod
+    @staticmethod
     def cost_then_name_sorter(redemption):
         return (redemption.cost, redemption.name)
     
-    #staticmethod
+    @staticmethod
     def reverse_cost_then_name_sorter(redemption):
         return (-redemption.cost, redemption.name)
     
-    #staticmethod
+    @staticmethod
     def create_redemption(redemption_name: str, redemption_cost: int, redemption_enabled: bool):
         db = Database()
         redemptions = db.redemptions
@@ -39,11 +39,11 @@ class Redemption:
 
         return Redemption(item._key, redemption_name, redemption_cost, redemption_enabled, redemption_count)
     
-    #staticmethod
+    @staticmethod
     def create_redemption_from_db_obj(db_obj):
         return Redemption(db_obj['_key'], db_obj['name'], db_obj['cost'], db_obj['enabled'], db_obj['redemption_count'])
     
-    #staticmethod
+    @staticmethod
     def get_all_redemptions(sorter=None):
         db = Database()
         redemptions = []
@@ -53,7 +53,7 @@ class Redemption:
             redemptions.sort(key=sorter)
         return redemptions
     
-    #staticmethod
+    @staticmethod
     def get_redemption_by_key(redemption_key: str):
         db = Database()
 
@@ -62,7 +62,7 @@ class Redemption:
         except (KeyError, DocumentNotFoundError):
             return None
     
-    # staticmethod
+    @staticmethod
     def remove_redemption_by_key(redemption_key: str):
         db = Database()
 
