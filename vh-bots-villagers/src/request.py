@@ -84,6 +84,13 @@ class Request:
         else:
             return Request.create_request_from_db_obj(result[0])
 
+    def change_villager(self, villager: Villager):
+        request = self.get_request_db_obj()
+        request['villager_name'] = villager.name_en
+        request.save()
+
+        self.villager_name = villager.name_en
+
     def get_request_db_obj(self):
         db = Database()
 
