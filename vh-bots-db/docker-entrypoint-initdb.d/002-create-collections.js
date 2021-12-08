@@ -1,6 +1,6 @@
 db._useDatabase('villagerhaven');
 try {
-  db._create('requests');
+  db._create('requests', { keyOptions: { type: 'autoincrement' }});
 }
 catch {}
 
