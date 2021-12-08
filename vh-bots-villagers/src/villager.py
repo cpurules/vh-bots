@@ -1,9 +1,13 @@
 import json
 import os.path
+import re
 import requests
 
 class Villager:
+    SANRIO_VILLAGERS = ['Marty', 'Toby', 'Chelsea', 'Chai', 'Rilla', 'Etoile']
+
     villager_file = 'villagers.json'
+    villager_id_regex = r'^[a-z]{3}\d{2}$'
 
     def __init__(self, internal_id: str, name_en: str):
         self.internal_id = internal_id
@@ -20,6 +24,9 @@ class Villager:
             villagers = {}
             for line in response.split('\n'):
                 internal_id, villager_name = line.split('\t')
+                if re.match(Villager.villager_id_regex, internal_id) is None:
+                    continue
+                
                 villagers[internal_id] = villager_name
             
             with open(Villager.villager_file, 'w') as f:
@@ -55,6 +62,9 @@ class Villager:
 
         with open(Villager.villager_file, 'r') as f:
             all_villager_data = json.load(f)
+
+        if re.match(Villager.villager_id_regex, internal_id) is None:
+            return None
 
         try:
             return all_villager_data[internal_id]
