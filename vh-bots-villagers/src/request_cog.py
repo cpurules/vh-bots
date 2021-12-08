@@ -39,6 +39,7 @@ https://animalcrossing.fandom.com/wiki/Villager_list_(New_Horizons)
         #TODO make this a nice embed
         if villager is None:
             await ctx.send(content='{0} is not a valid villager name!  Please check the name\'s spelling.'.format(villager_name))
+            return
         
         #TODO make this a nice embed
         if not Request.get_current_user_request(ctx.author.id) is None:
@@ -49,13 +50,44 @@ https://animalcrossing.fandom.com/wiki/Villager_list_(New_Horizons)
 
         request_content = """
 **Your request for {0} has been submitted!**
-Make sure to check the Discord semi-often, as you'll be pinged when your villager is ready.
+Please check the Discord semi-often, as you'll be pinged when your villager is ready.
 
 Make sure to use the `!status` command to update your availability to receive your Villager!
 Repeated failures to collect your villager may result in being blocked from using the bot.
 **Please note that setting your status to Available indicates that you are currently available and have an open plot!**
 """
         await ctx.send(content=request_content.format(villager_name))
+    
+    @commands.command(name='change')
+    @commands.dm_only()
+    async def change_villager(self, ctx, *villager_name: str):
+        #TODO make this a nice embed
+        if len(villager_name) == 0:
+            await ctx.send(content='You need to specify a villager name to request!')
+            return
+        
+        villager_name = ' '.join(villager_name).strip().title()
+        villager = Villager.get_by_name(villager_name)
+        if villager is None:
+            await ctx.send(content='{0} is not a valid villager name!  Please check the name\'s spelling.'.format(villager_name))
+            return
+        
+        #TODO make this a nice embed
+        request = Request.get_current_user_request(ctx.author.id)
+        if request is None:
+            await ctx.send(content='You don\'t have an open villager request.')
+            return
+        
+        request.change_villager(villager)
+        change_content = """
+**Your villager request has been changed to {0}!**
+Please check the Discord semi-often, as you'll be pinged when your villager is ready.    
+
+Make sure to use the `!status` command to update your availability to receive your Villager!
+Repeated failures to collect your villager may result in being blocked from using the bot.
+**Please note that setting your status to Available indicates that you are currently available and have an open plot!**
+"""
+        await ctx.send(content=change_content.format(villager_name))
 
 
 def setup(bot):
