@@ -15,6 +15,11 @@ try {
 catch {}
 
 try {
+  db._create('reservations');
+}
+catch {}
+
+try {
   db._create('queues');
 }
 catch {}
