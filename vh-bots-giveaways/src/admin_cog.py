@@ -1,5 +1,6 @@
 import asyncio
 import discord
+from discord import team
 
 from config import BotConfig
 from discord.ext import commands
@@ -17,8 +18,26 @@ class AdminCog(commands.Cog):
         if prize is None or prize == '':
             return
         
+        team_reacts = [
+            "\N{LARGE BLUE DIAMOND}",
+            "\N{LARGE ORANGE DIAMOND}",
+            "\N{YELLOW HEART}",
+            "\N{HEAVY BLACK HEART}",
+            "\N{LARGE GREEN CIRCLE}",
+            "\N{LARGE PURPLE CIRCLE}",
+            "\N{GLOWING STAR}",
+            "\N{CROSS MARK}"
+        ]
+        
         channel = discord.utils.get(ctx.guild.text_channels, id=CONFIG.GIVEAWAY_CHAT_CHANNEL)
-        await channel.send(content=generate_giveaway_internal_announce(prize))
+        team_mentions = [ctx.guild.get_role(CONFIG.SUPPLIER_ROLE).mention]
+        for courier_role in CONFIG.COURIER_ROLES:
+            team_mentions.append(ctx.guild.get_role(courier_role).mention)
+
+        announce_msg = await channel.send(content=generate_giveaway_internal_announce(prize, team_mentions, team_reacts))
+        for react in team_reacts:
+            await announce_msg.add_reaction(react)
+            await asyncio.sleep(0.1)
     
     @commands.command(name='giveall')
     @commands.has_any_role(*CONFIG.COMMAND_ENABLED_ROLES)
@@ -311,17 +330,7 @@ This will be your supply team for the upcoming giveaway.  Check out {4} for more
     return content.format(supplier_mentions, courier_role_mentions, team_name, str(fauna_emoji),
                           giveaway_chat_channel.mention, str(pitfall_emoji), events_team_role.mention)
 
-def generate_giveaway_internal_announce(prize: str):
-    team_reacts = [
-        "\N{LARGE BLUE DIAMOND}",
-        "\N{LARGE ORANGE DIAMOND}",
-        "\N{YELLOW HEART}",
-        "\N{HEAVY BLACK HEART}",
-        "\N{LARGE GREEN CIRCLE}",
-        "\N{LARGE PURPLE CIRCLE}",
-        "\N{GLOWING STAR}",
-        "\N{CROSS MARK}"
-    ]
+def generate_giveaway_internal_announce(prize: str, team_mentions: list, team_reacts: list):
     content = """
 Hi {0} & {1} & {2}!
 
@@ -339,7 +348,7 @@ If you do not react at all, we will flag this!  It's okay to not participate in 
 **Note:** Our team will set up supplier/courier teams once we have an idea of how many people are participating!
 """
 
-    return content.format("mention1", "mention2", "mention3", prize, *team_reacts, "rosie")
+    return content.format(*team_mentions, prize, *team_reacts, "rosie")
 
 
 def setup(bot):
