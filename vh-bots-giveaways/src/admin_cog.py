@@ -332,7 +332,7 @@ Tomorrow's giveaway will be for {3}
 **__Giveaway Suppliers__** - Please react {8} for supplying this evening, or {9} for tomorrow.
 __Please react {10} if you don't need to pick up / are able to supply for yourself!__
 
-Please react {11} if you will not be availablet o support this giveaway.
+Please react {11} if you will not be available to support this giveaway.
 
 If you do not react at all, we will flag this!  It's okay to not participate in every giveaway, but we do need a response {12}
 
