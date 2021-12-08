@@ -100,8 +100,8 @@ command:   optional; the command to get help for
 
         if command == 'announce':
             content = """
-**!announce [prize]** - Posts an announcement to the giveaway team chat channel, with pings for suppliers, couriers,
-and CITs.  Prize can contain Villager Haven emojis, formatting, etc.
+**!announce [prize]** - Posts an announcement to the giveaway team chat channel, with pings for suppliers, couriers, and CITs.
+Prize can contain Villager Haven emojis, formatting, etc.
 """
 
         if command == 'channel':
