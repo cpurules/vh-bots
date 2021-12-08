@@ -28,13 +28,15 @@ class AdminCog(commands.Cog):
             "\N{GLOWING STAR}",
             "\N{CROSS MARK}"
         ]
+
+        rosie_love_emoji = await ctx.guild.fetch_emoji(CONFIG.ROSIE_LOVE_EMOJI)
         
         channel = discord.utils.get(ctx.guild.text_channels, id=CONFIG.GIVEAWAY_CHAT_CHANNEL)
         team_mentions = [ctx.guild.get_role(CONFIG.SUPPLIER_ROLE).mention]
         for courier_role in CONFIG.COURIER_ROLES:
             team_mentions.append(ctx.guild.get_role(courier_role).mention)
 
-        announce_msg = await channel.send(content=generate_giveaway_internal_announce(prize, team_mentions, team_reacts))
+        announce_msg = await channel.send(content=generate_giveaway_internal_announce(prize, team_mentions, team_reacts, rosie_love_emoji))
         for react in team_reacts:
             await announce_msg.add_reaction(react)
             await asyncio.sleep(0.1)
@@ -330,7 +332,7 @@ This will be your supply team for the upcoming giveaway.  Check out {4} for more
     return content.format(supplier_mentions, courier_role_mentions, team_name, str(fauna_emoji),
                           giveaway_chat_channel.mention, str(pitfall_emoji), events_team_role.mention)
 
-def generate_giveaway_internal_announce(prize: str, team_mentions: list, team_reacts: list):
+def generate_giveaway_internal_announce(prize: str, team_mentions: list, team_reacts: list, rosie_love_emoji: str):
     content = """
 Hi {0} & {1} & {2}!
 
@@ -348,7 +350,7 @@ If you do not react at all, we will flag this!  It's okay to not participate in 
 **Note:** Our team will set up supplier/courier teams once we have an idea of how many people are participating!
 """
 
-    return content.format(*team_mentions, prize, *team_reacts, "rosie")
+    return content.format(*team_mentions, prize, *team_reacts, rosie_love_emoji)
 
 
 def setup(bot):
