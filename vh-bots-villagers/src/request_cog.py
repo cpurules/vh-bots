@@ -4,6 +4,7 @@ import discord
 from cog_helpers import CogHelpers
 from discord.ext import commands
 from embed_builder import EmbedBuilder
+from request import Request
 from villager import Villager
 
 class RequestCog(commands.Cog):
@@ -14,15 +15,48 @@ class RequestCog(commands.Cog):
     @commands.command(name='help', aliases=['start'])
     @commands.dm_only()
     async def help(self, ctx):
-        content = """
-**Welcome to the Villager Haven bot!**
+        help_content = """
+**__Welcome to the Villager Haven bot!__**
 Let's get to pairing you with your favorite villager!
 
-Pick a villager name from the link below, and reply with `!villager <villager name>`, without the brackets.
+Pick a villager from the link below, and reply with `!villager <villager name>`
 For example, to request Plucky, type `!villager Plucky`
 https://animalcrossing.fandom.com/wiki/Villager_list_(New_Horizons)
 """
-        await ctx.send(content=content)
+
+        await ctx.send(content=help_content)
+    
+    @commands.command(name='villager')
+    @commands.dm_only()
+    async def start_request(self, ctx, *villager_name: str):
+        #TODO make this a nice embed
+        if len(villager_name) == 0:
+            await ctx.send(content='You need to specify a villager name to request!')
+            return
+        
+        villager_name = ' '.join(villager_name).strip().title()
+        villager = Villager.get_by_name(villager_name)
+        #TODO make this a nice embed
+        if villager is None:
+            await ctx.send(content='{0} is not a valid villager name!  Please check the name\'s spelling.'.format(villager_name))
+        
+        #TODO make this a nice embed
+        if not Request.get_current_user_request(ctx.author.id) is None:
+            await ctx.send(content='You have already submitted a villager request.')
+            return
+        
+        Request.create_new_request(ctx.author.id, villager)
+
+        request_content = """
+**Your request for {0} has been submitted!**
+Make sure to check the Discord semi-often, as you'll be pinged when your villager is ready.
+
+Make sure to use the `!status` command to update your availability to receive your Villager!
+Repeated failures to collect your villager may result in being blocked from using the bot.
+**Please note that setting your status to Available indicates that you are currently available and have an open plot!**
+"""
+        await ctx.send(content=request_content.format(villager_name))
+
 
 def setup(bot):
     bot.add_cog(RequestCog(bot))
