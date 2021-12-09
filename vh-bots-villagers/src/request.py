@@ -1,4 +1,5 @@
 import time
+from embed_builder import EmbedBuilder
 
 from pyArango.theExceptions import DocumentNotFoundError
 from database import Database
@@ -83,6 +84,30 @@ class Request:
             return None
         else:
             return Request.create_request_from_db_obj(result[0])
+    
+    @staticmethod
+    def get_online_requests(*, filter=None, include=None):
+        db = Database()
+
+        request_query = "FOR r IN requests FILTER r.status == 'RequestStatus.AVAILABLE' "
+        if not include is None:
+            if include.lower() == 'sanrio':
+                request_query += "AND r.villager_name IN ['{0}'] ".format("', '".join(Villager.SANRIO_VILLAGER_NAMES))
+            else:
+                request_query += "AND r.villager_name == '{0}' ".format(include.title())
+            
+        if not filter is None:               
+            if filter.lower() == 'sanrio':
+                request_query += "AND r.villager_name NOT IN ['{0}'] ".format("', '".join(Villager.SANRIO_VILLAGER_NAMES))
+            else:
+                request_query += "AND r.villager_name != '{0}' ".format(filter.title())
+        
+        request_query += "SORT TO_NUMBER(r._key) ASC "
+        request_query += "LIMIT 20 "
+        request_query += "RETURN r"
+        requests = db.db.AQLQuery(request_query, rawResults=True)
+
+        return [Request.create_request_from_db_obj(request) for request in requests]
 
     def change_villager(self, villager: Villager):
         request = self.get_request_db_obj()
@@ -116,7 +141,7 @@ class Request:
         db = Database()
 
         base_query = "FOR r IN requests FILTER TO_NUMBER(r._key) <= {0}".format(self._key) \
-                            + "AND NOT r.was_accepted AND r.status IN [{0}]" \
+                            + "AND r.was_accepted == false AND r.status IN [{0}]" \
                             + "COLLECT WITH COUNT INTO position RETURN position"
 
         overall_position_query = base_query.format("'RequestStatus.UNAVAILABLE', 'RequestStatus.AVAILABLE'")
