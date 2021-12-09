@@ -96,5 +96,18 @@ class Request:
 
         return db.requests.fetchDocument(str(self._key))
     
+    def is_closed(self):
+        return not self.status in [RequestStatus.AVAILABLE, RequestStatus.UNAVAILABLE]
+    
     def cancel(self):
         self.get_request_db_obj().delete()
+    
+    def toggle_availability(self):
+        if self.is_closed():
+            raise ValueError('Cannot update availability on a closed request')
+
+        request = self.get_request_db_obj()
+        request['status'] = RequestStatus((self.status.value % 2) + 1)
+        request.save()
+
+        self.status = request['status']

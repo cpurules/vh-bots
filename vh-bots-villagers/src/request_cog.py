@@ -4,7 +4,7 @@ import discord
 from cog_helpers import CogHelpers
 from discord.ext import commands
 from embed_builder import EmbedBuilder
-from request import Request
+from request import Request, RequestStatus
 from villager import Villager
 
 class RequestCog(commands.Cog):
@@ -103,6 +103,22 @@ Repeated failures to collect your villager may result in being blocked from usin
 You can re-renter at any time; just DM me `!start`!
 """
         await ctx.send(content=leave_content)
+    
+    @commands.command(name='status')
+    @commands.dm_only()
+    async def toggle_availability(self, ctx):
+        request = Request.get_current_user_request(ctx.author.id)
+        if request is None:
+            await ctx.send(content='You don\'t have an open villager request.')
+            return
+        
+        request.toggle_availability()
+        status_content = "Your availability has been changed to **{0}**.".format(request.status.name.title())
+        if request.status == RequestStatus.AVAILABLE:
+            status_content += '\n'
+            status_content += 'Please note that this means you are **available, with an open plot**!'
+        
+        await ctx.send(content=status_content)
 
 
 def setup(bot):
