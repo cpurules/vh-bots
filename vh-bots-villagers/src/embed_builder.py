@@ -6,9 +6,11 @@ class EmbedBuilder:
     def __init__(self):
         self.title = None
         self.colour = None
-        self.description= None
+        self.description = None
+        self.footer = None
         self.fields = None
         self.timestamp = None
+        self.thumbnail_url = None
     
     @staticmethod
     def fromEmbed(embed):
@@ -18,7 +20,9 @@ class EmbedBuilder:
         eb.description = embed.description
         if not embed.fields is None:
             eb.fields = [{'name': f.name, 'value': f.value, 'inline': f.inline} for f in embed.fields]
+        eb.footer = embed.footer
         eb.timestamp = embed.timestamp
+        eb.thumbnail_url = embed.thumbnail_url
         return eb
         
     def setTitle(self, title: str):
@@ -26,6 +30,13 @@ class EmbedBuilder:
             self.title = None
         else:
             self.title = str(title.strip())
+        return self
+    
+    def setFooter(self, footer: str):
+        if footer.strip() == '':
+            self.footer = None
+        else:
+            self.footer = str(footer.strip())
         return self
     
     def setColour(self, colour):
@@ -52,6 +63,10 @@ class EmbedBuilder:
             self.description = None
         else:
             self.description = '\n'.join(description_lines)
+        return self
+    
+    def setThumbnailUrl(self, url):
+        self.thumbnail_url = url
         return self
     
     def appendToDescription(self, data):
@@ -107,7 +122,11 @@ class EmbedBuilder:
             embed.colour = self.colour
         if not self.description is None:
             embed.description = self.description
+        if not self.footer is None:
+            embed.set_footer(self.footer)
         if not self.fields is None:
             for field in self.fields:
                 embed.add_field(name=field['name'], value=field['value'], inline=field['inline'])
+        if not self.thumbnail_url is None:
+            embed.set_thumbnail(url=self.thumbnail_url)
         return embed
