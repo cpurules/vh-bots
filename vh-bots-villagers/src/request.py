@@ -78,7 +78,7 @@ class Request:
         db = Database()
 
         query = 'FOR r IN requests FILTER r.member_id == "{0}" AND r.status IN ["{1}","{2}"] RETURN r'.format(member_id, RequestStatus.UNAVAILABLE, RequestStatus.AVAILABLE)
-        result = db.db.AQLQuery(query)
+        result = db.db.AQLQuery(query, rawResults=True)
         if len(result) == 0:
             return None
         else:
@@ -111,3 +111,24 @@ class Request:
         request.save()
 
         self.status = request['status']
+    
+    def get_queue_position(self):
+        db = Database()
+
+        base_query = "FOR r IN requests FILTER TO_NUMBER(r._key) <= {0}".format(self._key) \
+                            + "AND NOT r.was_accepted AND r.status IN [{0}]" \
+                            + "COLLECT WITH COUNT INTO position RETURN position"
+
+        overall_position_query = base_query.format("'RequestStatus.UNAVAILABLE', 'RequestStatus.AVAILABLE'")
+        online_position_query = base_query.format("'RequestStatus.AVAILABLE'")
+
+        overall_position_result = db.db.AQLQuery(overall_position_query, rawResults=True)
+        online_position_result = db.db.AQLQuery(online_position_query, rawResults=True)
+
+        overall_position = int(overall_position_result[0])
+        online_position = int(online_position_result[0])
+        # If we are offline, add 1 to online_position since we end up not counting
+        if self.status == RequestStatus.UNAVAILABLE:
+            online_position += 1
+
+        return { 'overall': overall_position, 'online': online_position }

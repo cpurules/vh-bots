@@ -119,6 +119,35 @@ You can re-renter at any time; just DM me `!start`!
             status_content += 'Please note that this means you are **available, with an open plot**!'
         
         await ctx.send(content=status_content)
+    
+    @commands.command(name='request')
+    @commands.dm_only()
+    async def get_request_info(self, ctx):
+        request_user = ctx.author.id
+
+        guild_member = CogHelpers.get_guild_member(request_user)
+        if guild_member is None:
+            await ctx.send(content='<@{0}> is not a member of Villager Haven.'.format(request_user))
+            return
+        
+        request = Request.get_current_user_request(request_user)
+        if request is None:
+            await ctx.send(content='You don\'t have an open villager request.')
+            return
+        
+        position = request.get_queue_position()
+        request_embed = EmbedBuilder().setTitle("Request Information - {0}".format(guild_member.name)) \
+                                        .appendToDescription("Please note your online position can change at any time. Requests " \
+                                            + "are handled in order globally and/or by which villagers each hunter is able to provide.") \
+                                        .setColour([130, 250, 10]) \
+                                        .addField({ 'name': '**Requested Villager**', 'value': request.villager_name, 'inline': True }) \
+                                        .addField({ 'name': '**Your Status**', 'value': request.status.name.title(), 'inline': True}) \
+                                        .addField({ 'name': 'Submitted At', 'value': request.submitted_timestamp, 'inline': True }) \
+                                        .addField({ 'name': 'Online Global Position', 'value': position['online'], 'inline': True }) \
+                                        .addField({ 'name': 'Overall Global Position', 'value': position['overall'], 'inline': True }) \
+                                        .setThumbnailUrl(guild_member.avatar_url_as(size=128, format='png'))
+
+        await ctx.send(embed=request_embed.build())
 
 
 def setup(bot):
