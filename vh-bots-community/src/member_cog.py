@@ -74,6 +74,7 @@ class GuildMemberCog(commands.Cog):
             except ValueError:
                 embed_lines.append("Cannot award invalid number of points `{0}`".format(points_delta))
             else:
+                Award.new_gift_award(member_id, points_delta, ctx.author.id, 'Just cuz')
                 member.adjust_balance(points_delta)
                 embed_lines.append("Updated balance for user ID `{0}` ({1}) by {2} points (now: {3})".format(member_id, member.get_mention(), points_delta, member.balance))
         

@@ -6,7 +6,7 @@ class Award:
 
     def __init__(self, _key: str, member_id: int, points: int, awarded_at: datetime, source: str, *, \
                     gifted_by: int=None, gift_reason: str=None, \
-                    message_id: int=None, message_link: str, is_pending: bool=None, deleted: bool=False):
+                    message_id: int=None, message_link: str=None, is_pending: bool=None, deleted: bool=False):
         self._key = _key
         self.member_id = member_id
         self.points = points
@@ -115,6 +115,25 @@ class Award:
                 awards.append(Award.create_award_from_db_obj(result))
         
         return awards
+    
+    @staticmethod
+    def new_gift_award(member_id: int, points: int, gifted_by: int, gift_reason: str):
+        db = Database()
+
+        award_data = {
+            'member_id': str(member_id),
+            'points': points,
+            'awarded_at': datetime.now(),
+            'source': 'user',
+            'gifted_by': str(gifted_by),
+            'gift_reason': gift_reason
+        }
+
+        db_award = db.awards.createDocument(award_data)
+        db_award.save()
+        db_award = db.awards.fetchDocument(db_award['_key'])
+
+        return Award.create_award_from_db_obj(db_award)
 
     @staticmethod
     def new_post_award(member_id: int, points: int, message_id: int, message_link: str):
@@ -133,6 +152,7 @@ class Award:
 
         db_award = db.awards.createDocument(award_data)
         db_award.save()
+        db_award = db.awards.fetchDocument(db_award['_key'])
 
         return Award.create_award_from_db_obj(db_award)
     
