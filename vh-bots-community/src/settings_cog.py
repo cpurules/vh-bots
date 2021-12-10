@@ -590,7 +590,7 @@ class SettingsCog(commands.Cog):
             
             await ctx.send(embed=edit_embed.build())
         elif action == "edit":
-            if setting.is_simple_list() and not setting.token in ['EMBED_COLOUR', 'BASE_AWARD_RANGE', 'AWARD_ENABLED_CHANNELS']:
+            if setting.is_simple_list() and not setting.token in ['EMBED_COLOUR', 'BASE_AWARD_RANGE', 'AWARD_ENABLED_CHANNELS', 'ADMIN_ROLES']:
                 await self.list_menu_handler(ctx, setting)
             else:
                 # launch per-command handlers
@@ -600,6 +600,12 @@ class SettingsCog(commands.Cog):
                     await self.base_award_range_handler(ctx, setting)
                 elif setting.token == 'AWARD_ENABLED_CHANNELS':
                     await self.award_enabled_channels_handler(ctx, setting)
+                elif setting.token == 'ADMIN_ROLES':
+                    # we don't allow this
+                    alert_embed = EmbedBuilder().setTitle("No can do, Sarge!") \
+                                                    .setColour(BotSettings.get_setting('admin', 'EMBED_COLOUR').value) \
+                                                    .setDescription("You're not allowed to edit this value via the bot.  Sorry!")
+                    await ctx.send(embed=alert_embed.build())
         
 
     @commands.command(name='settings')
