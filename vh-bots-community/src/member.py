@@ -57,6 +57,9 @@ class GuildMember:
         return "<@{0}>".format(self._key)
     
     def process_award(self, award: Award):
+        if not award.member_id == self._key:
+            raise ValueError("Can only process Awards for themselves")
+
         self.adjust_balance(award.points)
     
     def purchase(self, reward: Redemption):
