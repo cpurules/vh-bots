@@ -42,13 +42,13 @@ class BackgroundCog(commands.Cog):
         if not should_process:
             return
 
-        queued_awards = Award.get_queued_awards()
+        queued_awards = Award.get_queued_post_awards()
         time_delta = timedelta(minutes=BACKGROUND_SETTINGS['AWARD_PROCESS_DELAY'].value)
         awarded = []
         for queued_award in queued_awards:
             # Check for message deletion
             # Link format: https://discord.com/channels/guild/channel/message
-            channel_id = int(queued_award.link.split('/')[-2])
+            channel_id = int(queued_award.message_link.split('/')[-2])
             channel = CONFIG.get_guild_channel_by_id(channel_id)
             
             deleted = False
@@ -56,16 +56,16 @@ class BackgroundCog(commands.Cog):
                 deleted = True
             else:
                 try:
-                    msg = await channel.fetch_message(queued_award.message)
+                    msg = await channel.fetch_message(queued_award.message_id)
                 except discord.errors.NotFound:
                     deleted = True
 
             if deleted:
                 queued_award.mark_deleted()           
-            elif datetime.now() > (queued_award.queued_at + time_delta):
-                member = GuildMember.get_member_by_id(queued_award.author)
+            elif datetime.now() > (queued_award.awarded_at + time_delta):
+                member = GuildMember.get_member_by_id(queued_award.member_id)
                 member.process_award(queued_award)
-                queued_award.award()
+                queued_award.process_award()
                 awarded.append(queued_award)
         
         await self.notify_awardees(awarded)
@@ -77,10 +77,10 @@ class BackgroundCog(commands.Cog):
     async def notify_awardees(self, awards):
         member_totals = {}
         for award in awards:
-            if award.author in member_totals:
-                member_totals[award.author] += award.points
+            if award.member_id in member_totals:
+                member_totals[award.member_id] += award.points
             else:
-                member_totals[award.author] = award.points
+                member_totals[award.member_id] = award.points
         for member in member_totals:
             member_total = member_totals[member]
 
@@ -98,7 +98,7 @@ class BackgroundCog(commands.Cog):
     @commands.check(CogHelpers.check_is_admin)
     @commands.check(CogHelpers.check_is_channel_or_dm)
     async def list_queued_awards(self, ctx):
-        queued_awards = Award.get_queued_awards()
+        queued_awards = Award.get_queued_post_awards()
         
         awards_embed = EmbedBuilder().setTitle("Pending Award Queue") \
                                         .setColour(BotSettings.get_setting('admin', 'EMBED_COLOUR').value)

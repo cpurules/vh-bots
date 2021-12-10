@@ -67,7 +67,7 @@ class ListenerCog(commands.Cog):
         
         if random.random() < calculate_award_chance():
             # Queue a point reward for the person
-            a = Award.queue_new_award(msg.id, msg.author.id, msg.jump_url, calculate_points())
+            a = Award.new_post_award(msg.author.id, calculate_points(), msg.id, msg.jump_url)
 
 
 def setup(bot):

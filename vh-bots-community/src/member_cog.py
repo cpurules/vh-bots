@@ -4,6 +4,7 @@ import discord
 from cog_helpers import CogHelpers
 from discord.ext import commands
 from embed_builder import EmbedBuilder
+from award import Award
 from member import GuildMember
 from settings import *
 
@@ -80,6 +81,30 @@ class GuildMemberCog(commands.Cog):
                                 .build()
         
         await ctx.send(embed=award_embed)
+    
+    @commands.command(name='awardhistory')
+    @commands.check(CogHelpers.check_is_admin)
+    @commands.check(CogHelpers.check_is_channel_or_dm)
+    async def get_award_history(self, ctx, member_id: int=None):
+        if member_id is None:
+            await ctx.invoke(self.bot.get_command('c.help'), flag='c.awardhistory')
+            return
+        
+        history_embed = EmbedBuilder().setTitle('Award History') \
+                                        .setColour(BotSettings.get_setting('admin', 'EMBED_COLOUR').value)
+        embed_lines = []
+
+        member = GuildMember.get_member_by_id(member_id)
+        if member is None:
+            embed_lines.append("I can't find member with ID `{0}` (<@{0}>)".format(member_id))
+        else:
+            award_history = Award.get_user_award_history(member_id, max_count=10)
+            embed_lines.append("**__Last 10 awards for user <@{0}>__**".format(member_id))
+            for award in award_history:
+                embed_lines.append(str(award))
+        
+        history_embed = history_embed.appendToDescription(embed_lines)
+        await ctx.send(embed=history_embed.build())
 
     @commands.command(name='lookup')
     @commands.check(CogHelpers.check_is_admin)
