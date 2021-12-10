@@ -31,7 +31,7 @@ class Award:
             msg = "Post by {0} {1}"
         
             if not self.deleted:
-                msg_desc = "\[[jump to post]({0})\]".format(self.message_link)
+                msg_desc = "\[[jump]({0})\]".format(self.message_link)
                 if not self.is_pending:
                     trail = " (pending)"
                 else:
