@@ -82,7 +82,7 @@ about a specific command, type !commands **command** (e.g. !commands drawing)
         available_commands = ['help', 'commands', 'announce', 'channel', 'giveaway', 'drawing', 'drawing2', 'report', 'citreport',
                               'remind', 'cleanroles', 'cleanchannels', 'cleanall', 'getspecial', 'setspecial',
                               'clearspecial', 'getcitchannel', 'togglecitchannel', 'createteam', 'lock', 'unlock',
-                              'giveall', 'cleanteams', '!inventories']
+                              'giveall', 'cleanteams', 'inventories']
         if not command in available_commands:
             await ctx.send(content='Unknown command: {0}.  Use !commands to see available commands.'.format(command))
             return
