@@ -56,6 +56,7 @@ about a specific command, type !commands **command** (e.g. !commands drawing)
 !help/!commands <cmd>  Shows help for the specified command
 
 !announce              Posts announcement to giveaway team in giveaway chat channel
+!inventories           Posts inventory react message in giveaway chat channel
 !channel               Creates blank event or giveaway channels
 !createteam            Creates blank giveaway team channels
 !giveaway              Starts a standard giveaway
@@ -81,7 +82,7 @@ about a specific command, type !commands **command** (e.g. !commands drawing)
         available_commands = ['help', 'commands', 'announce', 'channel', 'giveaway', 'drawing', 'drawing2', 'report', 'citreport',
                               'remind', 'cleanroles', 'cleanchannels', 'cleanall', 'getspecial', 'setspecial',
                               'clearspecial', 'getcitchannel', 'togglecitchannel', 'createteam', 'lock', 'unlock',
-                              'giveall', 'cleanteams']
+                              'giveall', 'cleanteams', '!inventories']
         if not command in available_commands:
             await ctx.send(content='Unknown command: {0}.  Use !commands to see available commands.'.format(command))
             return
@@ -260,6 +261,11 @@ channel code:  the 4-character identifier for the channels and roles
 ```
 role:  the tag of the role to grant to message posters
 ```
+"""
+
+        if command == 'inventories':
+            content = """
+**!inventories** - Posts the inventory reaction message to the giveaway team chat channel.
 """
 
         await ctx.send(content=content)
