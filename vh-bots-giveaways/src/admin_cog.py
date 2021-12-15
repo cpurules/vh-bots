@@ -11,6 +11,7 @@ CONFIG = BotConfig()
 class AdminCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        CONFIG.bot = bot
     
     @commands.command(name='announce')
     @commands.has_any_role(*CONFIG.COMMAND_ENABLED_ROLES)
@@ -46,6 +47,33 @@ class AdminCog(commands.Cog):
         for react in team_reacts:
             await announce_msg.add_reaction(react)
             await asyncio.sleep(0.1)
+        
+        await ctx.message.delete()
+    
+    @commands.command(name='inventories')
+    @commands.has_any_role(*CONFIG.COMMAND_ENABLED_ROLES)
+    async def inventory_reacts_post(self, ctx):
+        inventory_reacts = ["{0}\N{COMBINING ENCLOSING KEYCAP}".format(x) for x in range(1, 7)] + [
+            "\N{REGIONAL INDICATOR SYMBOL LETTER Y}",
+            "\N{REGIONAL INDICATOR SYMBOL LETTER N}"
+        ]
+
+        channel = discord.utils.get(ctx.guild.text_channels, id=CONFIG.GIVEAWAY_CHAT_CHANNEL)
+
+        announce_text = """
+**All teams have now been assigned!**  If you do not have a team or didn't react, but still want to help, please DM a member of the {0} so we can get you set up (and please add your availability reaction!)
+
+For those of you who sent a react for self-supplying, you were not assigned a team.  If you find that you don't have what you need, let us know and we can add you to a team later if needed.
+
+After you have finished your supply runs for this giveaway, please confirm the number of inventories you picked up by reacting to this post.  Please also react accordingly if you took a run for yourself (**Y**) or not (**N**)
+"""
+
+        announce_msg = await channel.send(content=announce_text.format(CONFIG.get_guild_role_by_id(CONFIG.EVENTS_TEAM_ROLE).mention))
+        for react in inventory_reacts:
+            await announce_msg.add_reaction(react)
+            await asyncio.sleep(0.1)
+        
+        await ctx.message.delete()
     
     @commands.command(name='giveall')
     @commands.has_any_role(*CONFIG.COMMAND_ENABLED_ROLES)
