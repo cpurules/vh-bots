@@ -47,6 +47,8 @@ class AdminCog(commands.Cog):
         for react in team_reacts:
             await announce_msg.add_reaction(react)
             await asyncio.sleep(0.1)
+        
+        await ctx.message.delete()
     
     @commands.command(name='inventories')
     @commands.has_any_role(*CONFIG.COMMAND_ENABLED_ROLES)
