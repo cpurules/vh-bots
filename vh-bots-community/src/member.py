@@ -1,6 +1,7 @@
 from pyArango.theExceptions import DocumentNotFoundError
 from database import Database
 from award import Award
+from member_preferences import MemberPreferences
 from redemption import Redemption
 
 class GuildMember:   
@@ -52,6 +53,9 @@ class GuildMember:
         db = Database()
 
         return db.members.fetchDocument(str(self._key))
+    
+    def get_member_preferences(self):
+        return MemberPreferences.get_preferences_by_member_id(self._key)
     
     def get_mention(self):
         return "<@{0}>".format(self._key)
