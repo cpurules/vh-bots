@@ -44,7 +44,7 @@ async def help(ctx, flag: str=None):
         {
             'name': "Guild Members",
             'public_commands': [],
-            'admin_commands': ['c.award', 'c.lookup', 'c.setbalance']
+            'admin_commands': ['c.award', 'c.awardrole', 'c.lookup', 'c.setbalance']
         },
         {
             'name': "Point Awards",
@@ -106,6 +106,12 @@ async def help(ctx, flag: str=None):
                 help_text_lines.append("**Admin Only**")
                 help_text_lines.append("Award (or remove) Community Bot points to (or from) the specified user.")
                 help_text_lines.append("Usage: `c.award <user ID> <points>`")
+                help_text_lines.append("Note: points can be positive (give) or negative (take)")
+            elif flag == 'c.awardrole':
+                help_text_lines.append("**Admin Only**")
+                help_text_lines.append("Award (or remove) Community Bot points to (or from) all users in the specified role.")
+                help_text_lines.append("Usage: `c.awardrole <role> <points>`")
+                help_text_lines.append("Note: Role can be a role ID, name, or mention")
                 help_text_lines.append("Note: points can be positive (give) or negative (take)")
             elif flag == 'c.lookup':
                 help_text_lines.append("**Admin Only**")
