@@ -9,6 +9,7 @@ from discord.ext import commands
 from discord.ext import tasks
 from embed_builder import EmbedBuilder
 from member import GuildMember
+from member_preferences import MemberPreferences
 from settings import *
 
 # We want to avoid a database call to check chance configuration every message
@@ -82,6 +83,10 @@ class BackgroundCog(commands.Cog):
             else:
                 member_totals[award.member_id] = award.points
         for member in member_totals:
+            member_prefs = MemberPreferences.get_preferences_by_member_id(member)
+            if member_prefs is None or not member_prefs.notify_on_award:
+                continue
+            
             member_total = member_totals[member]
 
             notification_embed = EmbedBuilder().setTitle("You've been awarded points!") \
