@@ -51,6 +51,10 @@ class SettingsCog(commands.Cog):
                         elif reply_value == CogHelpers.CHECK_EMOJI:
                             action = 'new'
                             continue
+                        else:
+                            action = 'change'
+                            continue
+
                 else:
                     action = 'list'
 
