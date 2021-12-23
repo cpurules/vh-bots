@@ -1,5 +1,6 @@
 import asyncio
 import discord
+import typing
 
 from cog_helpers import CogHelpers
 from discord.ext import commands
@@ -82,6 +83,29 @@ class GuildMemberCog(commands.Cog):
                                 .build()
         
         await ctx.send(embed=award_embed)
+    
+    @commands.command(name='awardrole')
+    @commands.check(CogHelpers.check_is_admin)
+    @commands.check(CogHelpers.check_is_channel_or_dm)
+    async def award_points_to_role(self, ctx, role: typing.Optional[discord.Role]=None, points_delta: int=None):
+        if role is None or points_delta is None:
+            await ctx.invoke(self.bot.get_command('c.help'), flag='c.awardrole')
+            return
+        
+        award_embed = EmbedBuilder().setTitle('Award Points to Role Members') \
+                                        .setColour(BotSettings.get_setting('admin', 'EMBED_COLOUR').value)
+        
+        awarded_count = 0
+        for role_member in role.members:
+            member = GuildMember.get_member_by_id(role_member.id)
+            if member is None:
+                continue
+            member.adjust_balance(points_delta)
+            awarded_count += 1
+        
+        desc = "Awarded {0} points to {1} members in the {2} role".format(points_delta, awarded_count, role.mention)
+        award_embed = award_embed.setDescription(desc)
+        await ctx.send(embed=award_embed.build())
     
     @commands.command(name='awardhistory')
     @commands.check(CogHelpers.check_is_admin)
